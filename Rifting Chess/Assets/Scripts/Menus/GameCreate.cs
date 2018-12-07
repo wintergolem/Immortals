@@ -10,10 +10,10 @@ public class GameCreate : MonoBehaviour {
     public Canvas openLobbies;
     public Canvas createNew;
     public Dropdown mapChoice;
+
 	void Start () {
         //TODO: contact server about available games
         CreateButtons();
-
     }
 	
 	void Update () {	}

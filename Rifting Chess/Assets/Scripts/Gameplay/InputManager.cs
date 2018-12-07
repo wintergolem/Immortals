@@ -9,6 +9,8 @@ public class InputManager : MonoBehaviour {
     public Text buttonText;
     private bool mouseOverLastUpdate = false;
 
+    public static Vector2Int lastGridPoint = new Vector2Int();
+
     private void Start()
     {
         powerButton.onClick.AddListener(GameManager.instance.PowerButtonPressed);
@@ -22,25 +24,26 @@ public class InputManager : MonoBehaviour {
         //Debug.DrawRay(ray.origin,ray.direction*10,Color.red);
         if (Physics.Raycast(ray, out hit))
         {
-            Vector3 point = hit.point;
-            Vector2Int gridPoint = Geometry.GridFromPoint(point);
+            var point = hit.point;
+           lastGridPoint = Geometry.GridFromPoint(point);
 
             //send position to gameManager
-            GameManager.instance.MouseOver(gridPoint);
+            GameNoticationCenter.TriggerEvent(GameEventTrigger.HoverSquare);   //GameManager.instance.MouseOver(gridPoint);
             mouseOverLastUpdate = true;
 
             if (Input.GetMouseButtonDown(0)) {
                 //send mouseDown(0) to gameManager
-                GameManager.instance.LeftMouseClick(point);
+                GameNoticationCenter.TriggerEvent(GameEventTrigger.ClickedOnSquare);
+                //GameManager.instance.LeftMouseClick(point);
             } else if (Input.GetMouseButtonDown(1)) {
                 //send mouseDown(1) to gameManager
-                GameManager.instance.RightMouseClick(point);
+                GameNoticationCenter.TriggerEvent(GameEventTrigger.RightClick);
             }
           }
         else {
             //send <no hit> to gamemanager
             if (mouseOverLastUpdate) {
-                GameManager.instance.RemoveMouseOver();
+                GameNoticationCenter.TriggerEvent(GameEventTrigger.RemoveHover); //GameManager.instance.RemoveMouseOver();
                 mouseOverLastUpdate = false;
             }
         }

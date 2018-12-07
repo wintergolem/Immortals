@@ -33,9 +33,9 @@ using UnityEngine;
 
 public class Knight : Piece
 {
-    public void Awake()
-    {
+    public void Awake(){
         value = 3;
+        type = PieceType.Knight;
     }
 
     public override List<Vector2Int> MoveLocations(Vector2Int gridPoint)

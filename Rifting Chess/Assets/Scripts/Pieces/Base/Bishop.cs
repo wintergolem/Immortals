@@ -35,6 +35,7 @@ public class Bishop : Piece
 {
     public void Awake() {
         value = 3;
+        type = PieceType.Bishop;
     }
 
     public override List<Vector2Int> MoveLocations(Vector2Int gridPoint)

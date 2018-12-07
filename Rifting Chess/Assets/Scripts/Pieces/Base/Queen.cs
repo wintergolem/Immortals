@@ -33,9 +33,9 @@ using UnityEngine;
 
 public class Queen : Piece
 {
-    public void Awake()
-    {
+    public void Awake(){
         value = 9;
+        type = PieceType.Queen;
     }
 
     public override List<Vector2Int> MoveLocations(Vector2Int gridPoint)

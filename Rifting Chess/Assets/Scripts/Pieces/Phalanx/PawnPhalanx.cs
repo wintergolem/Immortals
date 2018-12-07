@@ -6,6 +6,11 @@ public class PawnPhalanx : Pawn {
 
     public bool inPhalanx = false;
 
+    public PawnPhalanx()
+    {
+        startOfTurnAction = CheckMap;
+    }
+
     public override void CheckMap() {
         //check left
         if (square.personalCoord.x != 7 &&  !square.neighbors[2].Empty && square.neighbors[2].piece.type == PieceType.Pawn){
@@ -18,5 +23,6 @@ public class PawnPhalanx : Pawn {
         }
 
         moveWithCapture = !inPhalanx;
+        GameManager.instance.players[playerIndex].noticationCenter.runner.RunNext();
     }
 }

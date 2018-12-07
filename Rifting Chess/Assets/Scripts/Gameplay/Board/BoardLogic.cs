@@ -27,70 +27,77 @@ public class BoardLogic : MonoBehaviour
         print("logic - initialSetup");
         appearance = GetComponent<BoardAppearance>();
 
-        AddPiece(players[0].faction.rookWhiteLocation, 0, 0, 0);
-        AddPiece(players[0].faction.knightWhiteLocation, 0, 1, 0);
-        AddPiece(players[0].faction.bishopWhiteLocation, 0, 2, 0);
-        AddPiece(players[0].faction.queenWhiteLocation, 0, 3, 0);
-        AddPiece(players[0].faction.kingWhiteLocation, 0, 4, 0);
-        AddPiece(players[0].faction.bishopWhiteLocation, 0, 5, 0);
-        AddPiece(players[0].faction.knightWhiteLocation, 0, 6, 0);
-        AddPiece(players[0].faction.rookWhiteLocation, 0, 7, 0);
+        AddPiece(LoadManager.whiteRook, 0, 0, 0);
+        AddPiece(LoadManager.whiteKnight, 0, 1, 0);
+        AddPiece(LoadManager.whiteBishop, 0, 2, 0);
+        AddPiece(LoadManager.whiteQueen, 0, 3, 0);
+        AddPiece(LoadManager.whiteKing, 0, 4, 0);
+        AddPiece(LoadManager.whiteBishop, 0, 5, 0);
+        AddPiece(LoadManager.whiteKnight, 0, 6, 0);
+        AddPiece(LoadManager.whiteRook, 0, 7, 0);
 
-        for (int i = 0; i < 8; i++)
-        {
-            AddPiece(players[0].faction.pawnWhiteLocation, 0, i, 1);
+        for (int i = 0; i < 8; i++){
+            AddPiece(LoadManager.whitePawn, 0, i, 1);
         }
-        AddPiece(players[1].faction.rookBlackLocation, 1, 0, 7);
-        AddPiece(players[1].faction.knightBlackLocation, 1, 1, 7);
-        AddPiece(players[1].faction.bishopBlackLocation, 1, 2, 7);
-        AddPiece(players[1].faction.queenBlackLocation, 1, 3, 7);
-        AddPiece(players[1].faction.kingBlackLocation, 1, 4, 7);
-        AddPiece(players[1].faction.bishopBlackLocation, 1, 5, 7);
-        AddPiece(players[1].faction.knightBlackLocation, 1, 6, 7);
-        AddPiece(players[1].faction.rookBlackLocation, 1, 7, 7);
+        AddPiece(LoadManager.blackRook, 1, 0, 7);
+        AddPiece(LoadManager.blackKnight, 1, 1, 7);
+        AddPiece(LoadManager.blackBishop, 1, 2, 7);
+        AddPiece(LoadManager.blackQueen, 1, 3, 7);
+        AddPiece(LoadManager.blackKing, 1, 4, 7);
+        AddPiece(LoadManager.blackBishop, 1, 5, 7);
+        AddPiece(LoadManager.blackKnight, 1, 6, 7);
+        AddPiece(LoadManager.blackRook, 1, 7, 7);
 
-        for (int i = 0; i < 8; i++)
-        {
-            AddPiece(players[1].faction.pawnBlackLocation, 1, i, 6);
+        for (int i = 0; i < 8; i++){
+            AddPiece(LoadManager.blackPawn, 1, i, 6);
         }
+
+        GameManager.instance.PiecesAdded();
     }
 
     public void AddPiece(String prefabLocation, int player, int col, int row)
     {
-        Piece piece = appearance.AddPiece((GameObject)Resources.Load(prefabLocation, typeof(GameObject)), col, row).GetComponent<Piece>();
+        AddPiece((GameObject)Resources.Load(prefabLocation, typeof(GameObject)), player, col, row) ;
+        /*Piece piece = appearance.AddPiece((GameObject)Resources.Load(prefabLocation, typeof(GameObject)), col, row).GetComponent<Piece>();
+        GameManager.instance.AddPieceToPlayer(player, piece);
+        piece.playerIndex = player;
+        map.AddPieceToSquare(piece, new Vector2Int(col, row));
+        piece.square = map.SquareAt(col, row);*/
+    }
+
+    public void AddPiece(GameObject pieceObject, int player , int col, int row) {
+        Piece piece = appearance.AddPiece(pieceObject, col, row).GetComponent<Piece>();
         GameManager.instance.AddPieceToPlayer(player, piece);
         piece.playerIndex = player;
         map.AddPieceToSquare(piece, new Vector2Int(col, row));
         piece.square = map.SquareAt(col, row);
     }
 
-    public string GetPieceTypeForPlayer( PieceType type, Player player){
+    public GameObject GetPieceTypeForPlayer( PieceType type, Player player){
         int index = GameManager.instance.players[0] == player ? 0 : 1;
-        string path = "Prefabs/Basic/KingBlack";
         switch (type){
             case PieceType.Bishop:
-                return index == 0 ? player.faction.bishopWhiteLocation : player.faction.bishopBlackLocation;
+                return index == 0 ? LoadManager.whiteBishop : LoadManager.blackBishop;
             case PieceType.King:
-                return index == 0 ? player.faction.kingWhiteLocation : player.faction.kingBlackLocation;
+                return index == 0 ? LoadManager.whiteKing : LoadManager.blackKing;
             case PieceType.Knight:
-                return index == 0 ? player.faction.knightWhiteLocation : player.faction.knightBlackLocation;
+                return index == 0 ? LoadManager.whiteKnight : LoadManager.blackKnight;
             case PieceType.Pawn:
-                return index == 0 ? player.faction.pawnWhiteLocation : player.faction.pawnBlackLocation;
+                return index == 0 ? LoadManager.whitePawn : LoadManager.blackPawn;
             case PieceType.Queen:
-                return index == 0 ? player.faction.queenWhiteLocation : player.faction.queenBlackLocation;
+                return index == 0 ? LoadManager.whiteQueen : LoadManager.blackQueen;
             case PieceType.Rook:
-                return index == 0 ? player.faction.rookWhiteLocation : player.faction.rookBlackLocation;
+                return index == 0 ? LoadManager.whiteRook : LoadManager.blackRook;
             default:
                 Debug.Log("Error finding piece " + type.ToString());
-                return path;
+                return LoadManager.whiteBishop;
            }
-        //return (GameObject)Resources.Load(path,typeof(GameObject));
     }
     #endregion
 
     #region To Appearance Methods
-    public void MouseOver(Vector2Int gridPoint){
-        appearance.MouseOver(gridPoint);
+    public void MouseOver(){
+        appearance.MouseOver(InputManager.lastGridPoint);
     }
     public void RemoveMouseOver() {
         appearance.RemoveMouseOver();

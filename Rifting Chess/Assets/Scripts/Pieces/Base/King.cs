@@ -36,6 +36,7 @@ public class King : Piece
 
     public void Awake() {
         value = 1500;
+        type = PieceType.King;
     }
 
     public override List<Vector2Int> MoveLocations(Vector2Int gridPoint)

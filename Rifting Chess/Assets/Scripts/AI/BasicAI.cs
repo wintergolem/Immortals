@@ -32,7 +32,7 @@ public class BasicAI {
 
     public void ChoosePawnSummon(){
         Vector2Int choosen = boardLogic.moveLocations[Random.Range(0,boardLogic.moveLocations.Count)];
-        GameManager.instance.PlacePawn(choosen);
+        GameManager.instance.PlacePiece(LoadManager.blackPawn , choosen);
     }
     #endregion
 

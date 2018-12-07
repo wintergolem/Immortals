@@ -8,13 +8,15 @@ public class Player
     public List<Piece> pieces;
     public List<Piece> capturedPieces;
 
+    public PlayerNoticationCenter noticationCenter;
+
     public string name;
     public int forward;
     public Faction faction;
     public PlayerType type;
     public int playerNumber;
 
-    public Player(string name, bool positiveZMovement , FactionType faction, PlayerType playerType, int playerNumber)
+    public Player(string name, bool positiveZMovement , PlayerType playerType, int playerNumber)
     {
         this.name = name;
         pieces = new List<Piece>();
@@ -23,18 +25,10 @@ public class Player
         this.playerNumber = playerNumber;
 
         forward = positiveZMovement ? 1 : -1;
-        //Debug.Log("Writing factions");
-        switch (faction){
-            case FactionType.Zombies:
-                this.faction = new Zombies();
-                break;
-            case FactionType.Priest:
-                this.faction = new Priest();
-                break;
-            case FactionType.Phalanx:
-                this.faction = new Phalanx();
-                break;
-        }
+
+        noticationCenter = forward > 0 ? PlayerNoticationCenter.playerOne : PlayerNoticationCenter.playerTwo;
+
+        this.faction = new Zombies(); //placeholder
     }
 
     public Piece GetKing() {

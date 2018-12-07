@@ -1,9 +1,7 @@
 ﻿//using System.Collections;
 //using System.Collections.Generic;
+using System;
 using UnityEngine;
-
-public enum GameState { premove, move, postmove, AI };
-public enum PostMoveAction { None , Summon, Castle , ReSet };
 
 public class GameManager : MonoBehaviour
 {
@@ -12,13 +10,16 @@ public class GameManager : MonoBehaviour
 
     public BoardLogic boardLogic;
     public CameraControl cameraControl;
-    public GameState state;
     public Player[] players;
 
-    private bool hasMoved = false;
-    private int activePlayerIndex;
+    public Piece pieceBeingCaptured;
+    public Piece pieceCapturing;
+
+    public bool hasFocus = true;
+    public bool moveTaken = false;
+
+    public int activePlayerIndex;
     private InputManager inputManager;
-    private PostMoveAction postMoveAction;
     private BasicAI ai;
 
     public int ActivePlayerIndex{
@@ -37,109 +38,68 @@ public class GameManager : MonoBehaviour
 
     void Start() {
         print("manager - start");
-        if (Account.instance == null)
-            Account.CreateAccount();
         players = new Player[2];
-        players[0] = new Player("White", true, Account.instance.factionToBePlayed, PlayerType.Local , 0);
-        players[1] = new Player("Black", false, Account.instance.factionOpponent, Account.instance.opponentType, 1);
+        players[0] = new Player("White", true,  PlayerType.Local , 0);
+        players[1] = new Player("Black", false, Account.instance.opponentType, 1);
+
+        //add lists to players
+        LoadManager.FillPrefabs(players[0],Account.instance.GetArmyList(0));
+        LoadManager.FillPrefabs(players[1],Account.instance.GetArmyList(1));
+        //end
+
+        GameNoticationCenter.instance.HoverSquare.Add(boardLogic.MouseOver);
+        //GameNoticationCenter.instance.ClickedSquare.Add(LeftMouseClick);
+        GameNoticationCenter.instance.RemoveHover.Add(boardLogic.RemoveMouseOver);
+
         activePlayerIndex = 0;
-        state = GameState.premove;
-        postMoveAction = PostMoveAction.None;
+        //postMoveAction = PostMoveAction.None;
         inputManager = GetComponent<InputManager>();
-        inputManager.ButtonVisable(false);
         ai = new BasicAI(boardLogic, players[1]);
     }
 
-
-
     #region GAME FLOW
 
-    private void Update()
-    {
-        if (state == GameState.postmove) {
-            switch (postMoveAction) {
-                case PostMoveAction.None:
-                    NextPlayer();
-                    break;
-                case PostMoveAction.Castle:
-                    Piece king = activePlayer.GetKing();
-                    if (king.square.personalCoord.x == 2) {
-                        //grab rook
-                        Piece rook = boardLogic.PieceAtGrid(new Vector2Int(0, king.square.personalCoord.y));
-                        boardLogic.Move(rook, new Vector2Int(3, king.square.personalCoord.y));
-                    } else  {
-                        Piece rook = boardLogic.PieceAtGrid(new Vector2Int(7, king.square.personalCoord.y));
-                        boardLogic.Move(rook, new Vector2Int(5, king.square.personalCoord.y));
-                    }
-                    NextPlayer();
-                    break;
-                case PostMoveAction.ReSet:
+    private void Update() {
+        if (!hasFocus)
+            return;
+        if (moveTaken && !activePlayer.noticationCenter.runner.running && !inactivePlayer.noticationCenter.runner.running)
+        {
+            NextPlayer();
+        }
+               /* case PostMoveAction.ReSet:
                     if (activePlayer.faction.type == FactionType.Phalanx)
                         foreach (Piece p in activePlayer.pieces)
                             p.moveWithCapture = true;
                     NextPlayer();
-                    break;
-                case PostMoveAction.Summon:
-                    if (activePlayer.type == PlayerType.AI) {
-                        ai.ChoosePawnSummon();
-                    }
-                    break;
-            }
-        }
+                    break;*/
     }
 
     public void NextPlayer(){
-        activePlayer.faction.EndOfTurn();
-        activePlayerIndex = activePlayerIndex == 0 ? 1 : 0;
-
-        //redo map threats
-        boardLogic.map.RemoveThreats();
-        foreach (Piece piece in inactivePlayer.pieces){
-            boardLogic.map.Threaten(piece.GetThreatLocations() , inactivePlayer.playerNumber);
-        }
-
-
-        if (activePlayer.type == PlayerType.Local){
-            cameraControl.SwitchCameras(ActivePlayerIndex);
-            state = GameState.premove;
-            PreformPreMoveAction();
-            inputManager.ButtonVisable(false);
-        } else if (activePlayer.type == PlayerType.AI){
-            inputManager.ButtonVisable(false);
-            state = GameState.AI;
-            StartCoroutine(ai.DecideMove());
-            //TODO do what?
-        }
-        postMoveAction = PostMoveAction.None;
-        hasMoved = false;
+        //print("NextPlayer ");
+        activePlayer.noticationCenter.runner.SetEndAction(RotatePlayers);
+        activePlayer.noticationCenter.TriggerEvent(EventToTrigger.EndOfTurn);
     }
 
-    void PreformPreMoveAction()
-    {
-        if (activePlayer.faction.hasPreMoveAction)
+    void RotatePlayers() {
+        //print("RotatePlayers");
+        activePlayer.noticationCenter.runner.SetEndAction( null );
+        activePlayerIndex = activePlayerIndex == 0 ? 1 : 0;
+        //redo map threats
+        boardLogic.map.RemoveThreats();
+        foreach (Piece piece in activePlayer.pieces)
         {
-            switch (activePlayer.faction.preMoveActionType)
-            {
-                case PreMoveActionType.Summon:
-                    postMoveAction = PostMoveAction.Summon;
-                    boardLogic.SelectPiece(activePlayer.GetKing());
-                    state = GameState.postmove;
-                    //clear faction flags
-                    activePlayer.faction.hasPreMoveAction = false;
-                    activePlayer.faction.preMoveActionType = PreMoveActionType.None;
-                    break;
-                case PreMoveActionType.CheckMap:
-                    foreach (Piece p in activePlayer.pieces) {
-                        p.CheckMap();
-                    }
-                    break;
-                case PreMoveActionType.Retribution:
-                    boardLogic.HighlightPiece((activePlayer.faction as Priest).enemyToStrike);
-                    inputManager.ButtonVisable(true);
-                    ChangePowerButtonText( "Kill " + (activePlayer.faction as Priest).enemyToStrike.type.ToString());
-                    break;
-            }
+            boardLogic.map.Threaten(piece.GetThreatLocations(), activePlayer.playerNumber);
         }
+        if (activePlayer.type == PlayerType.Local)
+        {
+            cameraControl.SwitchCameras(ActivePlayerIndex);
+            activePlayer.noticationCenter.TriggerEvent(EventToTrigger.StartOfTurn);
+        }
+        else if (activePlayer.type == PlayerType.AI)
+        {
+            StartCoroutine(ai.DecideMove());
+        }
+        moveTaken = false;
     }
 
     public void CheckMove( Vector2Int gridPoint, Piece selectedPiece){
@@ -148,18 +108,15 @@ public class GameManager : MonoBehaviour
             //check castle move
             if (boardLogic.movingPiece.type == PieceType.King && !boardLogic.movingPiece.hasMoved)
             {
-                if (gridPoint.x == 2 || gridPoint.x == 6)
-                    postMoveAction = PostMoveAction.Castle;
+                if (gridPoint.x == 2 || gridPoint.x == 6) { }
+                // move rook
             }
             boardLogic.Move(boardLogic.movingPiece, gridPoint);
             boardLogic.DeselectPiece(boardLogic.movingPiece);
-            hasMoved = true;
-            state = GameState.postmove;
+            moveTaken = true;
         }
         //check if user clicked movingPiece; if yes then deselect it and go back a step
-        else if (selectedPiece == boardLogic.movingPiece)
-        {
-            state = GameState.premove;
+        else if (selectedPiece == boardLogic.movingPiece) {
             boardLogic.DeselectPiece(selectedPiece);
         }
         //check if user clicked on another friendly piece instead
@@ -176,118 +133,80 @@ public class GameManager : MonoBehaviour
     }
 
     void CheckCapture(Vector2Int gridPoint, Piece selectedPiece) {
+        //print("Checking Capture move");
         if (boardLogic.GridPointValidMoveTarget(gridPoint))  {
-            PieceType capturedPieceType = boardLogic.PieceAtGrid(gridPoint).type;
-            PieceType movingPieceType = boardLogic.movingPiece.type;
-            CapturePiece(selectedPiece);//boardLogic.CapturePieceAt(gridPoint);
-            hasMoved = true;
-            if (boardLogic.movingPiece.moveWithCapture)
-                boardLogic.Move(boardLogic.movingPiece, gridPoint);
+            pieceBeingCaptured = boardLogic.PieceAtGrid(gridPoint);
+            pieceCapturing = boardLogic.movingPiece;
+            if (pieceBeingCaptured != selectedPiece)
+                print("PieceBeingCaptured and selectedPiece don't match!!");
+            CapturePiece();
+            moveTaken = true;
+            if (pieceCapturing.moveWithCapture)
+                boardLogic.Move(pieceCapturing, gridPoint);
 
-            state = GameState.postmove;
-            //check faction reactions
-            if (inactivePlayer.faction.type == FactionType.Priest && inactivePlayer.faction.hasCaptureReaction)
-                (inactivePlayer.faction as Priest).ReactToCapture(boardLogic.movingPiece);
-            //deselect movingPiece
             boardLogic.DeselectPiece(boardLogic.movingPiece);
-            if (activePlayer.faction.type == FactionType.Zombies) 
-                postMoveAction = (activePlayer.faction as Zombies).CheckSummon(boardLogic,activePlayer,movingPieceType,capturedPieceType);
+            //check faction reactions
+            activePlayer.noticationCenter.TriggerEvent(EventToTrigger.EnemyCaptured);
+            inactivePlayer.noticationCenter.TriggerEvent(EventToTrigger.FriendlyCaptured);
+           // if (inactivePlayer.faction.type == FactionType.Priest && inactivePlayer.faction.hasCaptureReaction)
+             //   (inactivePlayer.faction as Priest).ReactToCapture(boardLogic.movingPiece);
+            //deselect movingPiece
         }
     }
 
-    public void PlacePawn(Vector2Int gridPoint){
+    public void PlacePiece(GameObject piece, Vector2Int gridPoint){
         if (boardLogic.GridPointValidMoveTarget(gridPoint)){
-            boardLogic.AddPiece((activePlayer.faction as Zombies).pieceToSummonPath, ActivePlayerIndex, gridPoint.x, gridPoint.y);
+            boardLogic.AddPiece(piece, ActivePlayerIndex, gridPoint.x, gridPoint.y);
         }
         boardLogic.DeselectPiece(boardLogic.movingPiece);
-        postMoveAction = PostMoveAction.None;
-        hasMoved = true;
     }
     #endregion
 
     #region INPUT HANDLER METHODS
-    public void MouseOver(Vector2Int gridPoint) {
-        boardLogic.MouseOver(gridPoint);
-    }
-    public void RemoveMouseOver(){
-        boardLogic.RemoveMouseOver();
-    }
-    public void LeftMouseClick(Vector3 point)
+    public void LeftMouseClick()
     {
-        Vector2Int gridPoint = Geometry.GridFromPoint(point);
+        if (moveTaken || !hasFocus) return;
+
+        var gridPoint = InputManager.lastGridPoint;
+        if (!hasFocus) return;
         Piece selectedPiece = boardLogic.map.SquareAt(gridPoint).piece;
-
-        switch (state)
+        if (boardLogic.movingPiece != null)
         {
-            case GameState.premove:
-                if (selectedPiece != null && DoesPieceBelongToCurrentPlayer(selectedPiece))
-                {
-                    boardLogic.SelectPiece(selectedPiece);
-                    state = GameState.move;
-                }
-                break;
-            case GameState.move:
-                CheckMove(gridPoint, selectedPiece);
-                break;
-            case GameState.postmove:
-                switch (postMoveAction)
-                {
-                    case PostMoveAction.Summon:
-                        if (selectedPiece == null)
-                            PlacePawn(gridPoint);
-                        break;
-                    case PostMoveAction.Castle: //shouldn't ever come up
-                        break;
-                }
-                break;
+            CheckMove(gridPoint, selectedPiece);
         }
-    }
-    public void RightMouseClick(Vector3 point)
-    {
-        switch (state)
+        else if (selectedPiece != null)
         {
-            case GameState.postmove:
-                if (postMoveAction == PostMoveAction.Summon) {
-                    postMoveAction = PostMoveAction.None;
-                    boardLogic.DeselectPiece(boardLogic.movingPiece);
-                    if (!hasMoved)
-                        state = GameState.premove;
-                }
-                break;
-            case GameState.move:
-                if (activePlayer.faction.preMoveActionType == PreMoveActionType.Retribution) {
-                    //nothing
-                }
-                break;
-            default:
-                return;
+            boardLogic.SelectPiece(selectedPiece);
         }
     }
 
-    void ChangePowerButtonText( string text ){
+    public void ChangePowerButtonText( string text ){
         inputManager.ChangeButtonText(text);
     }
 
-    public void PowerButtonPressed()
+    public void PowerButtonPressed() {
+        print("gamemanager power button pressed");
+        GameNoticationCenter.TriggerEvent(GameEventTrigger.PowerPressed);
+    }
+
+    public void PowerButtonSwitch(bool isOn)
     {
-        if (activePlayer.faction.type == FactionType.Phalanx && activePlayer.faction.hasPowerToAttachToButton){
-            activePlayer.faction.PowerAttachedToButton();
-            postMoveAction = PostMoveAction.ReSet;
-            foreach (Piece p in activePlayer.pieces){
-                p.moveWithCapture = false;
-            }
-        } else if (activePlayer.faction.type == FactionType.Priest) {
-            CapturePiece((activePlayer.faction as Priest).enemyToStrike);
-            activePlayer.faction.hasPreMoveAction = false;
-            activePlayer.faction.hasCaptureReaction = false;
-            state = GameState.postmove;
-        }
+        inputManager.ButtonVisable(isOn);
     }
     #endregion
 
     #region Logic Passthrough
-    void CapturePiece(Piece piece)   {
-        boardLogic.CapturePieceAt(piece.square.personalCoord);
+    public void CapturePiece(Piece pieceCaptured , Piece pieceCapturing)
+    {
+        this.pieceBeingCaptured = pieceCaptured;
+        this.pieceCapturing = pieceCapturing;
+        boardLogic.CapturePieceAt(pieceCaptured.square.personalCoord);
+        activePlayer.noticationCenter.TriggerEvent(EventToTrigger.EnemyCaptured);
+        inactivePlayer.noticationCenter.TriggerEvent(EventToTrigger.FriendlyCaptured);
+    }
+
+    void CapturePiece( )   {
+        boardLogic.CapturePieceAt(pieceBeingCaptured.square.personalCoord);
     }
 
     #endregion
@@ -298,6 +217,27 @@ public class GameManager : MonoBehaviour
     }
     public bool DoesPieceBelongToCurrentPlayer(Piece piece) {
         return activePlayer.pieces.Contains(piece);
+    }
+    #endregion
+
+    #region setup
+
+    public void PiecesAdded()
+    {
+        for (int i = 0; i < players.Length; i++)
+        {
+            foreach (Piece p in players[i].pieces)
+            {
+                if (p.startOfTurnAction != null)
+                    players[i].noticationCenter.TurnStart.Add(p.startOfTurnAction);
+                if (p.endOfTurnAction != null)
+                    players[i].noticationCenter.TurnEnd.Add(p.endOfTurnAction);
+                if (p.friendlyCaptured != null)
+                    players[i].noticationCenter.FriendlyCaptured.Add(p.friendlyCaptured);
+                if (p.enemyCaptured != null)
+                    players[i].noticationCenter.EnemyCaptured.Add(p.enemyCaptured);
+            }
+        }
     }
     #endregion
 }

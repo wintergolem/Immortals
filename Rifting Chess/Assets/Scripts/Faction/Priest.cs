@@ -8,21 +8,13 @@ public class Priest : Faction {
 
     public Priest(){
         type = FactionType.Priest;
-        hasCaptureReaction = true;
-        reactionType = CaptureReactionType.Retribution;
-        preMoveActionType = PreMoveActionType.Retribution;
-        hasPowerToAttachToButton = false;
     }
 
     public void ReactToCapture(Piece aggressor){
         enemyToStrike = aggressor;
-        hasPreMoveAction = true;
-        hasPowerToAttachToButton = true;
     }
 
-    public override void EndOfTurn(){
-        hasPowerToAttachToButton = false;
-        hasPreMoveAction = false;
+    public  void EndOfTurn(){
         if ( enemyToStrike != null )
             GameManager.instance.boardLogic.HighlightPiece(enemyToStrike, true);
         enemyToStrike = null;

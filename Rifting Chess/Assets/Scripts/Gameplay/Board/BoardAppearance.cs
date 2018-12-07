@@ -25,8 +25,9 @@ public class BoardAppearance : MonoBehaviour
 
     public GameObject AddPiece(GameObject piece, int col, int row){
         Vector2Int gridPoint = Geometry.GridPoint(col, row);
-        GameObject newPlace = Instantiate(piece, Geometry.PointFromGrid(gridPoint), Quaternion.identity, gameObject.transform);
-        return newPlace;
+        GameObject newPiece = Instantiate(piece, Vector3.zero, Quaternion.identity);
+        newPiece.transform.position = Geometry.PointFromGrid(gridPoint);
+        return newPiece;
     }
     #endregion
     #region Basic Changes
@@ -79,12 +80,9 @@ public class BoardAppearance : MonoBehaviour
         foreach (Vector2Int loc in moveLocations)
         {
             GameObject highlight;
-            if (logic.PieceAtGrid(loc))
-            {
+            if (logic.PieceAtGrid(loc)){
                 highlight = Instantiate(attackLocationPrefab, Geometry.PointFromGrid(loc), Quaternion.identity, gameObject.transform);
-            }
-            else
-            {
+            } else {
                 highlight = Instantiate(moveLocationPrefab, Geometry.PointFromGrid(loc), Quaternion.identity, gameObject.transform);
             }
             locationHighlights.Add(highlight);
