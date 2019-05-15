@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using System;
+using System.IO;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -13,15 +15,18 @@ public static class LoadManager {
         new SceneInfo("GameCreate" , "Scenes/Menus/GameCreate", SceneType.Menu),
         new SceneInfo("Protoype" , "Scenes/Levels/Prototype", SceneType.Map),
         new SceneInfo("ForestMap" , "Scenes/Levels/NoBoardTest", SceneType.Map),
-        new SceneInfo("Lobby" , "Scenes/Menus/GameLobby", SceneType.Menu),
-        new SceneInfo("ArmyBuild", "Scenes/Menus/ArmyBuilder", SceneType.Menu)
+        new SceneInfo("ArmyBuild", "Scenes/Menus/ArmyBuilder", SceneType.Menu),
+        new SceneInfo("ArmyViewer", "Scenes/Menus/ArmyListView", SceneType.Menu)
     };
-    public enum SceneList { MainMenu = 0,
-        GameCreate =1 ,
-        Prototype = 2 ,
-        ForestMap = 3 ,
-        Lobby = 4 ,
-        ArmyBuilder = 5};
+    public enum SceneList
+    {
+        MainMenu = 0,
+        Prototype = 2,
+        ForestMap = 3,
+        GameCreate = 1,
+        ArmyBuilder = 4,
+        ArmyViewer = 5
+    };
 
     public static void LoadScene( SceneList selection ){
         LoadScene( SceneArray[ (int)selection ]);
@@ -42,38 +47,108 @@ public static class LoadManager {
     }
     #endregion
 
-    #region Model Storing
+    #region In GameModel Storing
 
-    public static GameObject blackPawn;
-    public static GameObject blackRook;
-    public static GameObject blackKnight;
-    public static GameObject blackBishop;
-    public static GameObject blackQueen;
-    public static GameObject blackKing;
-    public static GameObject whitePawn;
-    public static GameObject whiteRook;
-    public static GameObject whiteKnight;
-    public static GameObject whiteBishop;
-    public static GameObject whiteQueen;
-    public static GameObject whiteKing;
+    public static List<List<GameObject>> pieceList = new List<List<GameObject>>();
+    public static List<List<GameObject>> additionalPieces = new List<List<GameObject>>();
 
-    public static void FillPrefabs( Player player , ArmyList list) {
-        if (player.playerNumber == 0){
-            whitePawn = (GameObject)Resources.Load(list.pawn.whitePath);
-            whiteRook = (GameObject)Resources.Load(list.rook.whitePath);
-            whiteKnight = (GameObject)Resources.Load(list.knight.whitePath);
-            whiteBishop = (GameObject)Resources.Load(list.bishop.whitePath);
-            whiteQueen = (GameObject)Resources.Load(list.queen.whitePath);
-            whiteKing = (GameObject)Resources.Load(list.king.whitePath);
-        } else {
-            blackPawn = (GameObject)Resources.Load(list.pawn.blackPath);
-            blackRook = (GameObject)Resources.Load(list.rook.blackPath);
-            blackKnight = (GameObject)Resources.Load(list.knight.blackPath);
-            blackBishop = (GameObject)Resources.Load(list.bishop.blackPath);
-            blackQueen = (GameObject)Resources.Load(list.queen.blackPath);
-            blackKing = (GameObject)Resources.Load(list.king.blackPath);
+    public static void FillPrefabs(Player player, ArmyList list, bool useWhitePath)
+    {
+        while (player.playerNumber >= pieceList.Count)
+        {
+            pieceList.Add(new List<GameObject>());
+        }
+        GameObject prefab;
+        foreach (PieceInfo p in list.pieces)
+        {
+            if (useWhitePath)
+                 prefab =(GameObject)Resources.Load(p.whitePath);
+            else
+                prefab = (GameObject)Resources.Load(p.blackPath);
+
+            prefab.GetComponent<Piece>().displayName = p.displayName;
+            pieceList[player.playerNumber].Add(prefab);
         }
 
+        foreach (List<GameObject> playerList in pieceList)
+        {
+            foreach (GameObject gameObject in playerList)
+            {
+                if (gameObject == null)
+                {
+                    Debug.Log("GameObject is null");
+                }
+            }
+        }
     }
+
+    public static int AddToAdditional(Player player, PieceInfo pieceInfo, bool useWhitePath)
+    {
+        while (player.playerNumber >= additionalPieces.Count)
+        {
+            additionalPieces.Add(new List<GameObject>());
+        }
+
+        if (useWhitePath)
+            additionalPieces[player.playerNumber].Add((GameObject)Resources.Load(pieceInfo.whitePath));
+        else
+            additionalPieces[player.playerNumber].Add((GameObject)Resources.Load(pieceInfo.blackPath));
+
+        return additionalPieces[player.playerNumber].Count - 1;
+    }
+    #endregion
+
+    #region List saving and Loading
+
+    static string dataPath;
+
+    public static void SaveAllLists()
+    {
+        dataPath = Path.Combine(Application.persistentDataPath, "ListData.txt");
+
+        ArmyListGoBetween[] lists = new ArmyListGoBetween[Account.instance.savedLists.Count];
+        for (int i = 0; i < Account.instance.savedLists.Count; i++)
+        {
+            lists[i] = new ArmyListGoBetween(Account.instance.savedLists[i]);
+        }
+        string jsonString = JsonHelper.ToJson(lists, true);
+        File.WriteAllText(dataPath, jsonString);
+    }
+
+    public static void LoadAllLists()
+    {
+        dataPath = Path.Combine(Application.persistentDataPath, "ListData.txt");
+        if (File.Exists(dataPath))
+        {
+            string dataAsJson = File.ReadAllText(dataPath);
+            var rawData = JsonHelper.FromJson<ArmyListGoBetween>(dataAsJson);
+            var lists = new List<ArmyList>();
+            foreach (ArmyListGoBetween goBetween in rawData)
+            {
+                lists.Add(goBetween.ToArmyList());
+            }
+            Account.instance.savedLists = lists;
+            //using (StreamReader streamReader = File.OpenText(dataPath))
+            // {
+            //string jsonString = streamReader.ReadToEnd();
+
+            //var rawData = JsonUtility.FromJson<List<ArmyListGoBetween>>(jsonString);
+            //var rawData = JsonHelper.FromJson<ArmyListGoBetween>(jsonString);
+
+            /*var returnValue = new List<ArmyList>();
+                foreach (ArmyListGoBetween goBetween in rawData)
+                {
+                    returnValue.Add(goBetween.ToArmyList());
+                }*/
+
+            //Account.instance.savedLists = returnValue;
+            //}
+        }
+        else
+        {
+            Debug.Log("File doesn't exist" + dataPath);
+        }
+    }
+
     #endregion
 }

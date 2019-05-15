@@ -21,15 +21,31 @@ public class NotificationQueueRunner {
         endAction = action;
     }
 
-    public void  RunNext(){
-        if (actionList.Count > 0) {
+    public void RemovePiece(Piece piece)
+    {
+        for (int i = 0; i < actionList.Count; i++)
+        {
+            if ( (object)actionList[i].Target == piece)
+            {
+                actionList.RemoveAt(i);
+                i--;
+            }
+        }
+
+    }
+
+    public void RunNext()
+    {
+        if (actionList.Count > 0)
+        {
             var task = actionList[0];
             actionList.RemoveAt(0);
-            task();
+            if( task.Target != null)
+                task();
         }  else {
             running = false;
             actionList = new List<Action>();
-            GameManager.instance.hasFocus = true;
+            GameManager.instance.stuffTakingFocus.Remove(this);
             if (endAction != null) endAction();
         }
     }

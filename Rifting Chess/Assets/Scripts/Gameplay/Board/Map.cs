@@ -5,13 +5,14 @@ using UnityEngine;
 public class Map  {
 
     public Square[,] squares;
-
+    public int rowCount = 8;
+    public int columnCount = 8;
 
     public Map() {
         squares = new Square[8, 8];
         //fill array
-        for (int x = 0; x < 8; x++) {
-            for (int y = 0; y < 8; y++) {
+        for (int x = 0; x < rowCount; x++) {
+            for (int y = 0; y < columnCount; y++) {
                 //Debug.Log("x = " + x.ToString() + " y = " + y.ToString());
                 squares[x,y] = new Square(this, new Vector2Int(x,y));
             }

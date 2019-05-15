@@ -5,7 +5,7 @@ using System;
 
 #region Player Notication Center
 
-public enum EventToTrigger { StartOfTurn , EndOfTurn , FriendlyCaptured , EnemyCaptured  };
+public enum EventToTrigger { StartOfTurn , EndOfTurn , FriendlyCaptured , EnemyCaptured, PowerPressed  };
 
 //public delegate void StartOfTurnDelegate(GameManager manager);
 //public delegate void EndOfTurnDelegate(GameManager manager);
@@ -25,6 +25,7 @@ public class PlayerNoticationCenter  {
     public List<Action> TurnEnd = new List<Action>();
     public List<Action> FriendlyCaptured = new List<Action>();
     public List<Action> EnemyCaptured = new List<Action>();
+    public List<Action> PowerPressed = new List<Action>();
 
     public NotificationQueueRunner runner = new NotificationQueueRunner();
 
@@ -40,8 +41,10 @@ public class PlayerNoticationCenter  {
                 SetRunner(FriendlyCaptured.ToArray());
                 break;
             case EventToTrigger.EnemyCaptured:
-                Debug.Log("Enemy Captured called");
                SetRunner(EnemyCaptured.ToArray());
+                break;
+            case EventToTrigger.PowerPressed:
+                SetRunner(PowerPressed.ToArray());
                 break;
         }
     }
@@ -52,7 +55,7 @@ public class PlayerNoticationCenter  {
 
         if (!runner.running){
             runner.running = true;
-            GameManager.instance.hasFocus = false;
+            GameManager.instance.stuffTakingFocus.Add(this);
             runner.RunNext();
         }
     }
@@ -63,8 +66,8 @@ public class PlayerNoticationCenter  {
 
 #region Game Notication Center
 
-public enum GameEventTrigger{ ClickedOnSquare, HoverSquare , RemoveHover ,
-    PowerPressed, SwitchingPlayers, RightClick}; 
+public enum GameEventTrigger{ ClickedOnSquare, ClickedOnPiece, HoverSquare , RemoveHover ,
+    PowerPressed, SwitchingPlayers, RightClick, PieceMoved}; 
 
 //public delegate void HoverOverSquare(Vector2Int gridpoint);
 //public delegate void ClickedOnSquare(Vector2Int gridpoint);
@@ -77,10 +80,11 @@ public class GameNoticationCenter {
 
     public  List<Action> HoverSquare = new List<Action>();
     public  List<Action> ClickedSquare = new List<Action>();
+    public List<Action> ClickedPiece = new List<Action>();
     public  List<Action> RemoveHover = new List<Action>();
     public  List<Action> SwitchingPlayers = new List<Action>();
     public  List<Action> RightClick = new List<Action>();
-    public List<Action> PowerPressed = new List<Action>();
+    public List<Action> PieceMoved = new List<Action>();
 
     public NotificationQueueRunner runner= new NotificationQueueRunner() ;
 
@@ -89,8 +93,10 @@ public class GameNoticationCenter {
             case GameEventTrigger.ClickedOnSquare:
                 if (instance.ClickedSquare.Count != 0)
                     instance.SetRunner(instance.ClickedSquare.ToArray());
-                else
-                    GameManager.instance.LeftMouseClick();
+                break;
+            case GameEventTrigger.ClickedOnPiece:
+                if (instance.ClickedPiece.Count != 0)
+                    instance.SetRunner(instance.ClickedPiece.ToArray());
                 break;
             case GameEventTrigger.HoverSquare:
                 if (instance.HoverSquare != null) //should be fine to just run this, some functions need to be on main thread
@@ -111,8 +117,8 @@ public class GameNoticationCenter {
             case GameEventTrigger.RightClick:
                 instance.SetRunner(instance.RightClick.ToArray());
                 break;
-            case GameEventTrigger.PowerPressed:
-                instance.SetRunner(instance.PowerPressed.ToArray());
+            case GameEventTrigger.PieceMoved:
+                instance.SetRunner(instance.PieceMoved.ToArray());
                 break;
         }
     }
@@ -124,7 +130,7 @@ public class GameNoticationCenter {
 
         if (!runner.running) {
             runner.running = true;
-            GameManager.instance.hasFocus = false;
+            GameManager.instance.stuffTakingFocus.Add(this);
             runner.RunNext();
         }
     }

@@ -21,6 +21,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Menus/GameCreate.unity
     guid: c53b9f333433443cb8d2ca87525cbbc3
   - enabled: 1
-    path: Assets/Scenes/Menus/GameLobby.unity
-    guid: 5feccd00c6ce5487381bd6ac371e4c90
+    path: Assets/Scenes/Menus/ArmyBuilder.unity
+    guid: 83d9866ad4e2a42bfb759579a971d1a0
+  - enabled: 1
+    path: Assets/Scenes/Menus/ArmyListView.unity
+    guid: 0674f0ed879ca49c09a20eef89f5379b
   m_configObjects: {}

@@ -13,21 +13,21 @@ public class Account {
 
     public List<ArmyList> savedLists;
 
-    private Account(){
+    private Account()
+    {
         savedLists = new List<ArmyList>();
         CreateAccount();
-        //TODO: try to pull data from disk
     }
 
-     void CreateAccount(){
-        selectedList = ArmyList.BuildBasicPriest();
+    void CreateAccount(){
+        selectedList = ArmyList.BuildBasicWarrior();
         opponentList = ArmyList.BuildBasicZombie();
         
     }
 
     public ArmyList GetArmyList( int player ) {
         if (selectedList == null) {
-            selectedList = ArmyList.BuildBasicPriest();
+            selectedList = ArmyList.BuildBasicWarrior();
             opponentList = ArmyList.BuildBasicZombie();
         }
         return player == 0 ? selectedList : opponentList;

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class BoardAppearance : MonoBehaviour
 {
@@ -9,9 +10,9 @@ public class BoardAppearance : MonoBehaviour
     public GameObject moveLocationPrefab;
     public GameObject attackLocationPrefab;
 
-    private BoardLogic logic;
     private GameObject tileHighlight;
-    private List<GameObject> locationHighlights;
+    public List<GameObject> locationHighlights = new List<GameObject>();
+    private List<GameObject> attackHighlights = new List<GameObject>();
 
     // - METHODS
     #region Setup
@@ -19,8 +20,18 @@ public class BoardAppearance : MonoBehaviour
     {
         tileHighlight = Instantiate(tileHighlightPrefab, Geometry.PointFromGrid(new Vector2Int(0, 0)), Quaternion.identity, gameObject.transform);
         tileHighlight.SetActive(false);
-        logic = GetComponent<BoardLogic>();
         selectedParticle.SetActive(false);
+
+        for (int i = 0; i < 20; i++)
+        {
+            locationHighlights.Add( Instantiate(moveLocationPrefab, Geometry.PointFromGrid(new Vector2Int(0, 0)), Quaternion.identity, gameObject.transform) );
+            locationHighlights[i].SetActive(false);
+        }
+        for (int i = 0; i < 10; i++ )
+        {
+            attackHighlights.Add(Instantiate(attackLocationPrefab, Geometry.PointFromGrid(new Vector2Int(0, 0)), Quaternion.identity, gameObject.transform));
+            attackHighlights[i].SetActive(false);
+        }
     }
 
     public GameObject AddPiece(GameObject piece, int col, int row){
@@ -34,11 +45,6 @@ public class BoardAppearance : MonoBehaviour
     public void RemovePiece(GameObject piece)
     {
         Destroy(piece);
-    }
-
-    public void MovePiece(GameObject piece, Vector2Int gridPoint)
-    {
-        piece.transform.position = Geometry.PointFromGrid(gridPoint);
     }
 
     public void SelectPiece(GameObject piece)
@@ -76,23 +82,62 @@ public class BoardAppearance : MonoBehaviour
     #region Move Highlights
     public void PlaceMoveHighlights(List<Vector2Int> moveLocations)
     {
-        locationHighlights = new List<GameObject>();
         foreach (Vector2Int loc in moveLocations)
         {
-            GameObject highlight;
-            if (logic.PieceAtGrid(loc)){
-                highlight = Instantiate(attackLocationPrefab, Geometry.PointFromGrid(loc), Quaternion.identity, gameObject.transform);
-            } else {
-                highlight = Instantiate(moveLocationPrefab, Geometry.PointFromGrid(loc), Quaternion.identity, gameObject.transform);
+            foreach (GameObject tile in locationHighlights)
+            {
+                if (!tile.activeSelf)
+                {
+                    tile.SetActive(true);
+                    tile.transform.position = Geometry.PointFromGrid(loc);
+                    break;
+                }
             }
-            locationHighlights.Add(highlight);
+        }
+    }
+
+    public void PlaceThreatenHighlights(List<Vector2Int> locations)
+    {
+        foreach (Vector2Int loc in locations)
+        {
+            foreach (GameObject tile in attackHighlights)
+            {
+                if (!tile.activeSelf)
+                {
+                    tile.SetActive(true);
+                    tile.transform.position = Geometry.PointFromGrid(loc);
+                    break;
+                }
+            }
         }
     }
     public void RemoveMoveHighlights()
     {
         foreach (GameObject highlight in locationHighlights)
         {
-            Destroy(highlight);
+            highlight.SetActive(false);
+        }
+        foreach (GameObject highlight in attackHighlights)
+        {
+            highlight.SetActive(false);
+        }
+    }
+
+    public void RemoveMoveHighlights( List<Vector2Int> locations)
+    {
+        foreach (GameObject highlight in locationHighlights)
+        {
+            if (locations.Contains( Geometry.GridFromPoint(highlight.transform.position)))
+            {
+                highlight.SetActive(false);
+            }
+        }
+        foreach (GameObject highlight in attackHighlights)
+        {
+            if (locations.Contains(Geometry.GridFromPoint(highlight.transform.position)))
+            {
+                highlight.SetActive(false);
+            }
         }
     }
 #endregion

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PriestKing : King {
 
-    public Piece enemyPieceCaptured;
+    public Piece_Base enemyPieceCaptured;
 
 	public PriestKing()
     {
@@ -13,6 +13,7 @@ public class PriestKing : King {
 
     public void DivineRetributionTrigger()
     {
+        GameLog.AddText("Divine Retribution triggered");
         enemyPieceCaptured = GameManager.instance.pieceCapturing;
         GameManager.instance.players[playerIndex].noticationCenter.TurnStart.Add(DivineRetributionBegin);
         GameManager.instance.players[playerIndex].noticationCenter.runner.RunNext();
@@ -20,8 +21,9 @@ public class PriestKing : King {
 
     public void DivineRetributionBegin()
     {
-        GameNoticationCenter.instance.PowerPressed.Add(DivineRetributionEnd);
-        GameNoticationCenter.instance.RightClick.Add(CancelDivineRetribution);
+        GameLog.AddText("Divine Retribution active");
+        player.noticationCenter.PowerPressed.Add(DivineRetributionEnd);
+       GameNoticationCenter.instance.RightClick.Add(CancelDivineRetribution);
         GameManager.instance.players[playerIndex].noticationCenter.TurnStart.Remove(DivineRetributionBegin);
         GameManager.instance.PowerButtonSwitch(true);
         GameManager.instance.ChangePowerButtonText("Kill " + enemyPieceCaptured.displayName);
@@ -29,23 +31,27 @@ public class PriestKing : King {
 
     public void DivineRetributionEnd()
     {
-        GameManager.instance.CapturePiece(enemyPieceCaptured, this);
+        GameLog.AddText( enemyPieceCaptured.displayName + " captured via Divine Retribution" );
+        CaptureEnemyPiece(enemyPieceCaptured, Vector2Int.zero); 
         GameManager.instance.moveTaken = true;
 
-        GameNoticationCenter.instance.PowerPressed.Remove(DivineRetributionEnd);
+        player.noticationCenter.PowerPressed.Remove(DivineRetributionEnd);
         GameNoticationCenter.instance.RightClick.Remove(CancelDivineRetribution);
         GameManager.instance.PowerButtonSwitch(false);
 
         GameManager.instance.players[playerIndex].noticationCenter.runner.RunNext();
         GameNoticationCenter.instance.runner.RunNext();
+        player.noticationCenter.runner.RunNext();
     }
 
     public void CancelDivineRetribution()
     {
-        GameNoticationCenter.instance.PowerPressed.Remove(DivineRetributionEnd);
+        GameLog.AddText(" Divine Retribution Cancelled");
+        player.noticationCenter.PowerPressed.Remove(DivineRetributionEnd);
         GameManager.instance.PowerButtonSwitch(false);
 
         GameManager.instance.players[playerIndex].noticationCenter.runner.RunNext();
         GameNoticationCenter.instance.runner.RunNext();
+        player.noticationCenter.runner.RunNext();
     }
 }

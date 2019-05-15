@@ -31,11 +31,17 @@ public class Square  {
         piece = null;
     }
 
-    public void AddPiece(Piece piece) {
+    public bool CanAddPiece(Piece_Base piece)
+    {
+        return false;
+    }
+
+    public void AddPiece(Piece_Base piece) {
         if( !Empty )
             throw new System.Exception("This is already a piece here: " + personalCoord.ToString());
 
-        this.piece = piece;
+        this.piece = piece as Piece;
+        piece.square = this;
     }
 
     public bool Threatened( int player){
