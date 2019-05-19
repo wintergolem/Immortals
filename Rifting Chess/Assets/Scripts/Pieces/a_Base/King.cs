@@ -16,7 +16,6 @@ public class King : PieceAdanced
     {
         moveLocations.Clear();
         bool canJump = currentMoveJump < maxMovePieceJumpsInstance;
-        int yPosition = square.personalCoord.y;
 
         for( int index = 0; index < square.neighbors.Length - 1; index++)
         {

@@ -63,6 +63,13 @@ public class GameManager : MonoBehaviour
         inputManager = GetComponent<InputManager>();
     }
 
+    void OnDestroy()
+    {
+        GameNoticationCenter.Surge();
+        foreach (Player p in players)
+            p.noticationCenter.Purge();
+    }
+
     #region GAME FLOW
 
     private void Update() {

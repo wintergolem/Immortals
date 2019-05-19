@@ -10,6 +10,7 @@ public class BoardAppearance : MonoBehaviour
     public GameObject moveLocationPrefab;
     public GameObject attackLocationPrefab;
 
+    [SerializeField]
     private GameObject tileHighlight;
     public List<GameObject> locationHighlights = new List<GameObject>();
     private List<GameObject> attackHighlights = new List<GameObject>();
@@ -140,5 +141,20 @@ public class BoardAppearance : MonoBehaviour
             }
         }
     }
-#endregion
+    #endregion
+
+    void OnDestroy()
+    {
+        Destroy(tileHighlight);
+        int i = 0;
+        for (; i < attackHighlights.Count; i ++)
+        {
+            Destroy(attackHighlights[i]);
+            Destroy(locationHighlights[i]);
+        }
+        for (; i < locationHighlights.Count; i++)
+        {
+            Destroy(locationHighlights[i]);
+        }
+    }
 }

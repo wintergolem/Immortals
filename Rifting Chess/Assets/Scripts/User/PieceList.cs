@@ -113,6 +113,7 @@ public static class PieceList {
 
           //pawn
         new PieceInfo("Prefabs/Pieces/Basic/Pawn/U-P-W-Standard", "Prefabs/Pieces/Basic/Pawn/U-P-B-Standard", "Pawn", new string[0], 1, FactionType.Warrior, PieceType.Pawn),
+        new PieceInfo("Prefabs/Pieces/WarriorFaction/Pawn/W-P-W-Warlust", "Prefabs/Pieces/WarriorFaction/Pawn/W-P-B-Warlust", "Warlust Pawn", new string[0], 2, FactionType.Warrior, PieceType.Pawn),
         //rook
         new PieceInfo("Prefabs/Pieces/Basic/Rook/U-R-W-Standard", "Prefabs/Pieces/Basic/Rook/U-R-B-Standard", "Rook", new string[0], 5, FactionType.Warrior, PieceType.Rook),
         //knight

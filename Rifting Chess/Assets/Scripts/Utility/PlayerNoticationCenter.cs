@@ -29,7 +29,17 @@ public class PlayerNoticationCenter  {
 
     public NotificationQueueRunner runner = new NotificationQueueRunner();
 
-    public  void TriggerEvent( EventToTrigger trigger){
+    public void Purge()
+    {
+        TurnStart = new List<Action>();
+        TurnEnd = new List<Action>();
+        FriendlyCaptured = new List<Action>();
+        EnemyCaptured = new List<Action>();
+        PowerPressed = new List<Action>();
+        runner = new NotificationQueueRunner();
+    }
+
+    public void TriggerEvent(EventToTrigger trigger){
         switch (trigger)  {
             case EventToTrigger.EndOfTurn:
                 SetRunner(TurnEnd.ToArray());
@@ -88,8 +98,22 @@ public class GameNoticationCenter {
 
     public NotificationQueueRunner runner= new NotificationQueueRunner() ;
 
-    public static void TriggerEvent( GameEventTrigger trigger){
-        switch (trigger){
+    public static void Surge()
+    {
+        instance.HoverSquare = new List<Action>();
+        instance.ClickedSquare = new List<Action>();
+        instance.ClickedPiece = new List<Action>();
+        instance.RemoveHover = new List<Action>();
+        instance.SwitchingPlayers = new List<Action>();
+        instance.RightClick = new List<Action>();
+        instance.PieceMoved = new List<Action>();
+        instance.runner = new NotificationQueueRunner();
+    }
+
+    public static void TriggerEvent(GameEventTrigger trigger)
+    {
+        switch (trigger)
+        {
             case GameEventTrigger.ClickedOnSquare:
                 if (instance.ClickedSquare.Count != 0)
                     instance.SetRunner(instance.ClickedSquare.ToArray());

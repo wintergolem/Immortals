@@ -28,7 +28,7 @@ public abstract class PieceAdanced : Piece
             check = next;
             currentSquaresMoved++;
 
-            if (next == null || currentSquaresMoved >= maxSquaresCanMove)
+            if (next == null || currentSquaresMoved > maxSquaresCanMove)
                 break;
             if (next.piece != null)
             {
