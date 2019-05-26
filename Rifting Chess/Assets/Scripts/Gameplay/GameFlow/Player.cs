@@ -15,6 +15,7 @@ public class Player
     public Faction faction;
     public PlayerType type;
     public int playerNumber;
+    public GameObject endDialog;
 
     public Player(string name, bool positiveZMovement , PlayerType playerType, int playerNumber)
     {
@@ -37,7 +38,7 @@ public class Player
                 return p;
             }
         }
-        Debug.Log("No king found for " + name + " player");
+        //Debug.Log("No king found for " + name + " player");
         return null;
     }
 

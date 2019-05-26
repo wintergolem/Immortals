@@ -16,6 +16,9 @@ public class GameManager : MonoBehaviour
     public Piece_Base pieceBeingCaptured;
     public Piece_Base pieceCapturing;
 
+    public GameObject lostDialog;
+    public GameObject wonDialog;
+
     public List<object> stuffTakingFocus = new List<object>();
     bool HasFocus
     { get
@@ -39,6 +42,9 @@ public class GameManager : MonoBehaviour
     public Player inactivePlayer {
         get { return activePlayerIndex == 0 ? players[1] : players[0]; }
     }
+
+    bool gameOver = false;
+
 
     void Awake(){
         instance = this;
@@ -75,7 +81,26 @@ public class GameManager : MonoBehaviour
     private void Update() {
         if (!HasFocus || !deploymentDone)
             return;
-        if (moveTaken && !activePlayer.noticationCenter.runner.running && !inactivePlayer.noticationCenter.runner.running)
+        if (gameOver)
+        {
+            if (activePlayer.GetKing() == null)
+            {
+                activePlayer.endDialog = lostDialog;
+                inactivePlayer.endDialog = wonDialog;
+                DisplayResults();
+            }
+            else if (inactivePlayer.GetKing() == null)
+            {
+                inactivePlayer.endDialog = lostDialog;
+                activePlayer.endDialog = wonDialog;
+                DisplayResults();
+            }
+            else
+            {
+                gameOver = false;
+            }
+        }
+        else if (moveTaken && !activePlayer.noticationCenter.runner.running && !inactivePlayer.noticationCenter.runner.running)
         {
             if (endHasRun)
             {
@@ -121,6 +146,11 @@ public class GameManager : MonoBehaviour
         }
         boardLogic.UnhighlightSquares();
     }
+
+    public void EndGame()
+    {
+        gameOver = true;
+    }
     #endregion
 
     #region INPUT HANDLER METHODS
@@ -152,13 +182,6 @@ public class GameManager : MonoBehaviour
 
     public void PiecesAdded()
     {
-        /*for (int i = 0; i < players.Count; i++)
-        {
-            foreach (Piece p in players[i].pieces)
-            {
-                SetupNewPiece(p, i);
-            }
-       }*/ 
         activePlayerIndex = 1;
         RotatePlayers();
     }
@@ -179,6 +202,12 @@ public class GameManager : MonoBehaviour
         GameNoticationCenter.instance.PieceMoved.Add(piece.ClearUp);
 
         GameNoticationCenter.instance.ClickedPiece.Add(piece.CheckForClicked);
+    }
+
+    public void DisplayResults()
+    {
+        activePlayer.endDialog.SetActive(true);
+        stuffTakingFocus.Add(this);
     }
     #endregion
 }

@@ -33,7 +33,13 @@ public class King : PieceAdanced
         {
             ThreatAlongAxis(index, canJump);
         }
+    }
 
+    public override void OnCaptured()
+    {
+        base.OnCaptured();
+
+        GameManager.instance.EndGame();
     }
 
 }
