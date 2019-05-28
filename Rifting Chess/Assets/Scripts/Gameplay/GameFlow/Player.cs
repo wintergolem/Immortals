@@ -12,7 +12,7 @@ public class Player
 
     public string name;
     public int forward;
-    public Faction faction;
+    public FactionType faction;
     public PlayerType type;
     public int playerNumber;
     public GameObject endDialog;
@@ -29,7 +29,7 @@ public class Player
 
         noticationCenter = forward > 0 ? PlayerNoticationCenter.playerOne : PlayerNoticationCenter.playerTwo;
 
-        this.faction = new Zombies(); //placeholder
+        this.faction = FactionType.Undead; //placeholder
     }
 
     public Piece GetKing() {

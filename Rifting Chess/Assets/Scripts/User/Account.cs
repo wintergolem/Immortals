@@ -20,15 +20,15 @@ public class Account {
     }
 
     void CreateAccount(){
-        selectedList = ArmyList.BuildBasicWarrior();
-        opponentList = ArmyList.BuildBasicZombie();
-        
+        selectedList = null;
+        opponentList = null;
+
     }
 
     public ArmyList GetArmyList( int player ) {
         if (selectedList == null) {
-            selectedList = ArmyList.BuildBasicWarrior();
-            opponentList = ArmyList.BuildBasicZombie();
+            selectedList = null;
+            opponentList = null;
         }
         return player == 0 ? selectedList : opponentList;
     }
