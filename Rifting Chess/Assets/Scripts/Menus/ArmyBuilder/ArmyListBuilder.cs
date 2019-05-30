@@ -25,10 +25,10 @@ public class ArmyListBuilder : MonoBehaviour {
         PieceBorder.armyBuild = this;
         if (Account.instance.selectedList == null)
         {
-            activeFaction = FactionType.Undead;
+            activeFaction = FactionType.Zombies;
             list = new ArmyList
             {
-                faction = FactionType.Undead,
+                faction = new Zombies(),
                 displayName = ""
             };
             saveButton.enabled = false;
@@ -37,8 +37,8 @@ public class ArmyListBuilder : MonoBehaviour {
         {
             list = Account.instance.selectedList;
             Account.instance.savedLists.Remove(list);
-            activeFaction = list.faction;
-            factionSelector.value = (int)(list.faction);
+            activeFaction = list.faction.type;
+            factionSelector.value = (int)(list.faction.type);
             nameInput.text = list.displayName;
 
             foreach (PieceInfo info in list.pieces)
@@ -110,6 +110,25 @@ public class ArmyListBuilder : MonoBehaviour {
         else
             if (string.IsNullOrEmpty(list.displayName))
                 list.displayName = "UnNamed";
+
+        switch (activeFaction)
+        {
+            case FactionType.Phalanx:
+                list.faction = new Phalanx();
+                break;
+            case FactionType.Priest:
+                list.faction = new Priest();
+                break;
+            case FactionType.Zombies:
+                list.faction = new Zombies();
+                break;
+            case FactionType.Warrior:
+                list.faction = new Warrior();
+                break;
+            default:
+                print("No value for " + activeFaction.ToString() + " in SaveButtonPressed()");
+                break;
+        }
 
         //TODO: save list to disk
         Account.AssignList(list, 0);

@@ -9,34 +9,34 @@ public static class PieceList {
           //UNDEAD FACTION
            //Base Set
             //Pawns
-            new PieceInfo("Prefabs/Pieces/ZombieFaction/Pawn/Z-P-W-Standard", "Prefabs/Pieces/ZombieFaction/Pawn/Z-P-B-Standard", "Zombie", new string[0], 1, FactionType.Undead, PieceType.Pawn),
+            new PieceInfo("Prefabs/Pieces/ZombieFaction/Pawn/Z-P-W-Standard", "Prefabs/Pieces/ZombieFaction/Pawn/Z-P-B-Standard", "Zombie", new string[0], 1, FactionType.Zombies, PieceType.Pawn),
             //bishops
-            new PieceInfo("Prefabs/Pieces/Basic/Bishop/U-B-W-Standard", "Prefabs/Pieces/ZombieFaction/Bishop/Z-B-B-Standard", "Unholy Bishop", new string[0], 3, FactionType.Undead, PieceType.Bishop),
+            new PieceInfo("Prefabs/Pieces/Basic/Bishop/U-B-W-Standard", "Prefabs/Pieces/ZombieFaction/Bishop/Z-B-B-Standard", "Unholy Bishop", new string[0], 3, FactionType.Zombies, PieceType.Bishop),
             //Rooks
-            new PieceInfo("Prefabs/Pieces/Basic/Rook/U-R-W-Standard", "Prefabs/Pieces/ZombieFaction/Rook/Z-R-B-Standard", "Undead Rook", new string[0], 5, FactionType.Undead, PieceType.Rook),
+            new PieceInfo("Prefabs/Pieces/Basic/Rook/U-R-W-Standard", "Prefabs/Pieces/ZombieFaction/Rook/Z-R-B-Standard", "Undead Rook", new string[0], 5, FactionType.Zombies, PieceType.Rook),
             //knights
-            new PieceInfo("Prefabs/Pieces/Basic/Knight/U-KN-W-Standard", "Prefabs/Pieces/ZombieFaction/Knight/Z-KN-B-Standard", "Undead Knight", new string[0], 3, FactionType.Undead, PieceType.Knight),
+            new PieceInfo("Prefabs/Pieces/Basic/Knight/U-KN-W-Standard", "Prefabs/Pieces/ZombieFaction/Knight/Z-KN-B-Standard", "Undead Knight", new string[0], 3, FactionType.Zombies, PieceType.Knight),
              
            //Empowered Set
             //Pawns
-            new PieceInfo("Prefabs/Pieces/Basic/Pawn/U-P-W-Charging", "Prefabs/Pieces/ZombieFaction/Pawn/Z-P-B-Charging", "Charging Pawn", new string[0], 1, FactionType.Undead, PieceType.Pawn),
-           new PieceInfo("Prefabs/Pieces/Basic/Pawn/U-P-W-Expert", "Prefabs/Pieces/Basic/Pawn/U-P-B-Expert", "Expert Pawn", new string[0], 1, FactionType.Undead, PieceType.Pawn),
-            new PieceInfo("Prefabs/Pieces/Basic/Pawn/U-P-W-Feinting", "Prefabs/Pieces/Basic/Pawn/U-P-B-Feinting", "Feinting Pawn", new string[0], 1, FactionType.Undead, PieceType.Pawn),
-            new PieceInfo("Prefabs/Pieces/Basic/Pawn/U-P-W-Stampeding", "Prefabs/Pieces/Basic/Pawn/U-P-B-Stampeding", "Stampeding Pawn", new string[0], 1, FactionType.Undead, PieceType.Pawn),
+            new PieceInfo("Prefabs/Pieces/Basic/Pawn/U-P-W-Charging", "Prefabs/Pieces/ZombieFaction/Pawn/Z-P-B-Charging", "Charging Pawn", new string[0], 1, FactionType.Zombies, PieceType.Pawn),
+           new PieceInfo("Prefabs/Pieces/Basic/Pawn/U-P-W-Expert", "Prefabs/Pieces/Basic/Pawn/U-P-B-Expert", "Expert Pawn", new string[0], 1, FactionType.Zombies, PieceType.Pawn),
+            new PieceInfo("Prefabs/Pieces/Basic/Pawn/U-P-W-Feinting", "Prefabs/Pieces/Basic/Pawn/U-P-B-Feinting", "Feinting Pawn", new string[0], 1, FactionType.Zombies, PieceType.Pawn),
+            new PieceInfo("Prefabs/Pieces/Basic/Pawn/U-P-W-Stampeding", "Prefabs/Pieces/Basic/Pawn/U-P-B-Stampeding", "Stampeding Pawn", new string[0], 1, FactionType.Zombies, PieceType.Pawn),
             //Rooks
-            new PieceInfo("Prefabs/Pieces/Basic/Rook/U-R-W-Murderhole", "Prefabs/Pieces/ZombieFaction/Rook/Z-R-B-Murderhole", "Murderhole Rook", new string[0], 6, FactionType.Undead, PieceType.Rook),
+            new PieceInfo("Prefabs/Pieces/Basic/Rook/U-R-W-Murderhole", "Prefabs/Pieces/ZombieFaction/Rook/Z-R-B-Murderhole", "Murderhole Rook", new string[0], 6, FactionType.Zombies, PieceType.Rook),
             //Knight
-              new PieceInfo("Prefabs/Pieces/Basic/Knight/U-KN-W-BruteForce", "Prefabs/Pieces/Basic/Knight/U-KN-B-Bruteforce", "BruteForce Knight", new string[0], 6, FactionType.Undead, PieceType.Knight),
+              new PieceInfo("Prefabs/Pieces/Basic/Knight/U-KN-W-BruteForce", "Prefabs/Pieces/Basic/Knight/U-KN-B-Bruteforce", "BruteForce Knight", new string[0], 6, FactionType.Zombies, PieceType.Knight),
                //Queen
-              new PieceInfo("Prefabs/Pieces/Basic/Queen/U-Q-W-Knighted", "Prefabs/Pieces/Basic/Queen/U-Q-B-Knighted", "Knighted Queen", new string[0], 6, FactionType.Undead, PieceType.Queen),
+              new PieceInfo("Prefabs/Pieces/Basic/Queen/U-Q-W-Knighted", "Prefabs/Pieces/Basic/Queen/U-Q-B-Knighted", "Knighted Queen", new string[0], 6, FactionType.Zombies, PieceType.Queen),
 
           //Necromancer Set
         //pawns
-         new PieceInfo("Prefabs/Pieces/ZombieFaction/Pawn/Z-P-W-BerserkingZombie", "Prefabs/Pieces/ZombieFaction/Pawn/Z-P-B-BerserkingZombie", "BerserkingZombie", new string[0], 2, FactionType.Undead, PieceType.Pawn),
+         new PieceInfo("Prefabs/Pieces/ZombieFaction/Pawn/Z-P-W-BerserkingZombie", "Prefabs/Pieces/ZombieFaction/Pawn/Z-P-B-BerserkingZombie", "BerserkingZombie", new string[0], 2, FactionType.Zombies, PieceType.Pawn),
         //champions
-        new PieceInfo("Prefabs/Pieces/ZombieFaction/Queen/Z-Q-W-Necromistress", "Prefabs/Pieces/ZombieFaction/Queen/Z-Q-B-Necromistress", "Necromistress", new string[0], 10 , FactionType.Undead, PieceType.Queen),
+        new PieceInfo("Prefabs/Pieces/ZombieFaction/Queen/Z-Q-W-Necromistress", "Prefabs/Pieces/ZombieFaction/Queen/Z-Q-B-Necromistress", "Necromistress", new string[0], 10 , FactionType.Zombies, PieceType.Queen),
         //leaders
-        new PieceInfo("Prefabs/Pieces/ZombieFaction/King/Z-K-W-Arch_Necromancer", "Prefabs/Pieces/ZombieFaction/King/Z-K-W-Arch_Necromancer", "Arch-Necromancer(King)", new string[0], 0, FactionType.Undead, PieceType.King),
+        new PieceInfo("Prefabs/Pieces/ZombieFaction/King/Z-K-W-Arch_Necromancer", "Prefabs/Pieces/ZombieFaction/King/Z-K-W-Arch_Necromancer", "Arch-Necromancer(King)", new string[0], 0, FactionType.Zombies, PieceType.King),
 
 
 

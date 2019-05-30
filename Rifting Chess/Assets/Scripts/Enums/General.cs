@@ -2,5 +2,5 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum FactionType {  Undead, Priest, Phalanx, Warrior };
+public enum FactionType {  Zombies, Priest, Phalanx, Warrior };
 

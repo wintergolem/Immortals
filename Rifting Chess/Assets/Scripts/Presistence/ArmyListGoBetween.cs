@@ -16,7 +16,7 @@ public class ArmyListGoBetween {
 
     public ArmyListGoBetween(ArmyList armyList)
     {
-        factionType = armyList.faction;
+        factionType = armyList.faction.type;
         displayname = armyList.displayName;
         modelHashes = new string[armyList.pieces.Count];
         maxPoints = armyList.maxPoints;
@@ -32,7 +32,7 @@ public class ArmyListGoBetween {
         var returnValue = new ArmyList
         {
             displayName = displayname,
-            faction = factionType
+            faction = Faction.FromType(factionType)
         };
 
         if (modelHashes.Length <= 0)
