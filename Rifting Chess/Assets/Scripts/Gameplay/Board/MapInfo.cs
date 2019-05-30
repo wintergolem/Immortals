@@ -4,21 +4,21 @@ using UnityEngine;
 
 public class MapInfo : MonoBehaviour {
 
-    public int numOfRows; // x-wise, where pieces are deployed on
-    public int numOfColumons; // y-wise, where pieces travel
+    public int[] numberOfSquares = new int[2];
     public GameObject zeroSpot;
+    public GameObject boardObject;
 
     float width;
     float height;
-    public float squareWidth;
-    public float squareHeight;
+    float squareWidth = 1.25f;
+    float squareHeight = 1.25f;
 
     private void Awake()  {
-        width = gameObject.GetComponent<MeshCollider>().bounds.size.x;
-        height = gameObject.GetComponent<MeshCollider>().bounds.size.z;
+        width = boardObject.GetComponent<MeshRenderer>().bounds.size.x;
+        height = boardObject.GetComponent<MeshRenderer>().bounds.size.z;
 
-        squareWidth = width / numOfRows;
-        squareHeight = height / numOfColumons;
+        numberOfSquares[0] = (int)(width / squareWidth);
+        numberOfSquares[1] = (int)(height / squareHeight);
 
         Geometry.squareWidth = squareWidth;
         Geometry.squareHeight = squareHeight;

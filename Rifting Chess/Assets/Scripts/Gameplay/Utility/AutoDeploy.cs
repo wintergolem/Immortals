@@ -31,7 +31,7 @@ public class AutoDeploy : MonoBehaviour
     Vector2Int GetNextLocation()
     {
         deployAt = new Vector2Int(deployAt.x + 1, deployAt.y);
-        if (deployAt.x >= GameManager.instance.boardLogic.map.rowCount)
+        if (deployAt.x >= GameManager.instance.boardLogic.map.squares.GetLength(0))
         {
             deployAt.x = 0;
             deployAt.y = runner.activePlayerIndex == 0 ? 0 + playerOneSecondRow : 7 - playerTwoSecondRow;

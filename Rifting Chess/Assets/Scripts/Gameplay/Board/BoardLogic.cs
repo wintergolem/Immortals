@@ -17,8 +17,8 @@ public class BoardLogic : MonoBehaviour
 
     #region GAME SETUP METHODS
     void Start() {
-        print("logic - Start");
-        map = new Map();
+
+        map = new Map(GetComponent<MapInfo>().numberOfSquares);
         appearance = GetComponent<BoardAppearance>();
     }
 
@@ -132,8 +132,8 @@ public class BoardLogic : MonoBehaviour
     public List<Vector2Int> GetEmptyBackRowSquares(int playerIndex)
     {
         var returnValue = new List<Vector2Int>();
-        int backRowIndex = GameManager.instance.players[playerIndex].forward > 0 ? 0 : map.columnCount;
-        for (int i = 0; i < map.rowCount; i++)
+        int backRowIndex = GameManager.instance.players[playerIndex].forward > 0 ? 0 : map.squares.GetLength(1);
+        for (int i = 0; i < map.squares.GetLength(0); i++)
          {
             if (map.SquareAt(new Vector2Int(i, backRowIndex)).Empty)
             {
