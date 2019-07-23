@@ -14,4 +14,11 @@ public static class ServerContactManager {
         list.Add(info);
         return list;
     }
+
+    public static int[] GetServerCurrency()
+    {
+        //TODO: add server database contact
+        Debug.Log("Sending fake amounts, server contact not implemented");
+        return new int[] { 5000, 5000 };
+    }
 }

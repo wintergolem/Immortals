@@ -13,6 +13,9 @@ public class Account {
 
     public List<ArmyList> savedLists;
 
+    int silverTotal = 0;
+    int goldTotal = 0;
+
     private Account()
     {
         savedLists = new List<ArmyList>();
@@ -42,5 +45,18 @@ public class Account {
                 instance.opponentList = list;
                 break;
         }
+    }
+
+    public static int[] GetCurrency()
+    {
+        return new int[] { instance.silverTotal, instance.goldTotal };
+    }
+
+    public static void VerifyCurrency()
+    {
+        int[] serverCurrency = ServerContactManager.GetServerCurrency();
+
+        instance.silverTotal = serverCurrency[0];
+        instance.goldTotal = serverCurrency[1];
     }
 }
