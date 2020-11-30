@@ -8,6 +8,7 @@ public class ScrollViewOption : MonoBehaviour
     public Text listName;
     public Text listFaction;
     public int value;
+    public Toggle toggle;
     ScrollViewFill owner;
 
     public void AddInfo(ListSummary summary, ScrollViewFill owner, int placeInList)
@@ -28,5 +29,10 @@ public class ScrollViewOption : MonoBehaviour
     public void Selected()
     {
         owner.selectedValue = value;
+    }
+
+    public void Unselect()
+    {
+        toggle.isOn = false;
     }
 }

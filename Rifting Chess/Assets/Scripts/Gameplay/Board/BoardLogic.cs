@@ -9,38 +9,38 @@ public class BoardLogic : MonoBehaviour
 {
     public bool castleMovePossible = false;
     public Map map;
-    public Piece movingPiece;
-    public List<Vector2Int> moveLocations;
-
+    //public Piece movingPiece;
+    
+    private List<int> moveLocations;
     private BoardAppearance appearance;
   
 
     #region GAME SETUP METHODS
     void Start() {
 
-        map = new Map(GetComponent<MapInfo>().numberOfSquares);
+        map = new Map(GetComponent<MapInfo>().board);
         appearance = GetComponent<BoardAppearance>();
     }
 
-    public void AddPiece(String prefabLocation, int player, int col, int row)
-    {
-        AddPiece((GameObject)Resources.Load(prefabLocation, typeof(GameObject)), player, col, row) ;
-    }
+     public void AddPiece(GameObject pieceObject, int player , int square_ID) 
+     {
+         AddPiece(pieceObject, player, map.board[square_ID]) ;
+     }
 
-    public void AddPiece(GameObject pieceObject, int player , int col, int row) {
-        Piece piece = appearance.AddPiece(pieceObject, col, row).GetComponent<Piece>();
+    public void AddPiece(GameObject pieceObject, int player , Square targetSquare) {
+        Piece piece = appearance.AddPiece(pieceObject, targetSquare).GetComponent<Piece>();
         GameManager.instance.AddPieceToPlayer(player, piece);
         piece.AssignPlayer(player);
         GameManager.instance.SetupNewPiece(piece, player);
 
-        map.AddPieceToSquare(piece, new Vector2Int(col, row));
-        piece.square = map.SquareAt(col, row);
+        map.AddPieceToSquare(piece, targetSquare.UniqueID);
+        piece.square = targetSquare;
     }
     #endregion
 
     #region To Appearance Methods
     public void MouseOver(){
-        appearance.MouseOver(InputManager.lastGridPoint);
+        appearance.MouseOver(InputManager.lastSquareTouched);
     }
     public void RemoveMouseOver() {
         appearance.RemoveMouseOver();
@@ -48,36 +48,36 @@ public class BoardLogic : MonoBehaviour
 
     public void SelectPiece(Piece piece) {
         appearance.SelectPiece(piece.gameObject);
-        movingPiece = piece;
-        moveLocations = MovesForPiece(movingPiece);
-        appearance.PlaceMoveHighlights(moveLocations);
+        //movingPiece = piece;
+        SetMoveLocation(piece);
+        appearance.PlaceMoveIndicators(moveLocations);
     }
 
-    public void HighlightSquares(List<Vector2Int> locations, bool movementSquares)
+    public void SquaresWithIndicators(List<int> locations, bool movementSquares)
     {
         if (movementSquares)
-            appearance.PlaceMoveHighlights(locations);
+            appearance.PlaceMoveIndicators(locations);
         else
-            appearance.PlaceThreatenHighlights(locations);
+            appearance.PlaceThreatIndicators(locations);
     }
 
-    public void UnhighlightSquares()
+    public void RemoveAllIndicators()
     {
-        appearance.RemoveMoveHighlights();
+        appearance.RemoveAllIndicators();
     }
 
-    public void UnhighlightSquares(List<Vector2Int> locations)
+    public void RemoveSpecificIndicators(List<int> locations)
     {
-        appearance.RemoveMoveHighlights(locations);
+        appearance.RemoveIndicatorSpecific(locations);
     }
     public void DeselectPiece(Piece piece) 
     {
         appearance.DeselectPiece(piece.gameObject);
-        movingPiece = null;
-        appearance.RemoveMoveHighlights();
+        //movingPiece = null;
+        appearance.RemoveAllIndicators();
     }
 
-    public void HighlightPiece(Piece piece , bool unHighLight = false)
+    public void ChangeHighlightOfPiece(Piece piece , bool unHighLight = false)
     {
         if (unHighLight)
         {
@@ -93,21 +93,21 @@ public class BoardLogic : MonoBehaviour
 
     #region Gameplay Methods
 
-    public void SelectPieceAtGrid(Vector2Int gridPoint) 
+    public void SelectPieceAtSquare(int square_id) 
     {
-        Piece selectedPiece = map.SquareAt(gridPoint).piece;
+        Piece selectedPiece = map.SquareAt(square_id).piece;
         if (selectedPiece) 
         {
             appearance.SelectPiece(selectedPiece.gameObject);
         }
     }
 
-    public Piece PieceAtGrid(Vector2Int gridPoint)
+    public Piece PieceOnSquare(int square_id)
     {
-        return gridPoint.x > 7 || gridPoint.y > 7 || gridPoint.x < 0 || gridPoint.y < 0 ? null : map.SquareAt(gridPoint.x, gridPoint.y).piece;
+        return map.SquareAt(square_id).piece;
     }
 
-    public List<Vector2Int> MovesForPiece(Piece piece)  
+    public List<int> MovesForPiece(Piece piece)  
     {
         var locations = piece.MoveLocations;
         return locations;
@@ -117,31 +117,41 @@ public class BoardLogic : MonoBehaviour
      {
         List<AIMove> moves = new List<AIMove>();
         var locations = piece.MoveLocations;
-        foreach (Vector2Int l in locations){
+        foreach (int l in locations){
             AIMove move = new AIMove(piece,l);
             moves.Add(move);
         }
         return moves;
     }
 
-    public bool GridPointValidMoveTarget(Vector2Int gridPoint) 
+    public bool SquareValidMoveTarget(int square_id) 
     {
-        return moveLocations.Contains(gridPoint);
+        return moveLocations.Contains(square_id);
     }
 
-    public List<Vector2Int> GetEmptyBackRowSquares(int playerIndex)
+    public List<int> GetEmptySpawnPointsForPlayer(int playerIndex)
     {
-        var returnValue = new List<Vector2Int>();
-        int backRowIndex = GameManager.instance.players[playerIndex].forward > 0 ? 0 : map.squares.GetLength(1);
-        for (int i = 0; i < map.squares.GetLength(0); i++)
-         {
-            if (map.SquareAt(new Vector2Int(i, backRowIndex)).Empty)
+        List<int> returnValue = new List<int>();
+        foreach( Square square in map.board)
+        {
+            if( square.IsSpawnPoint(playerIndex) && square.IsEmpty)
             {
-                returnValue.Add(new Vector2Int(i, backRowIndex) );
+                returnValue.Add(square.UniqueID);
             }
         }
         return returnValue;
     }
 
+    #endregion
+
+    #region MOVELOCATION METHODS
+    public List<int> GetMoveLocations()
+    {
+        return moveLocations;
+    }
+    public void SetMoveLocation(Piece piece)
+    {
+        moveLocations = MovesForPiece(piece);
+    }
     #endregion
 }

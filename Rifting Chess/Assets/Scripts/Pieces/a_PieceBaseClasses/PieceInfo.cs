@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class PieceInfo {
 
-    public string whitePath;
-    public string blackPath;
+    public string modelPath;
     public string displayName;
     public FactionType factionType;
     public int value;
@@ -14,9 +13,8 @@ public class PieceInfo {
 
     public string hashID;
 
-    public PieceInfo( string whitePath , string blackPath, string name, string[] abilities, int value, FactionType faction, PieceType pieceType){
-        this.whitePath = whitePath;
-        this.blackPath = blackPath;
+    public PieceInfo( string path, string name, string[] abilities, int value, FactionType faction, PieceType pieceType){
+        modelPath = path;
         displayName = name;
         descriptions = abilities;
         this.value = value;
@@ -25,5 +23,18 @@ public class PieceInfo {
 
         hashID = factionType.ToString().Remove(3) + displayName.Remove(3)  + pieceType.ToString().Remove(3) + value;
         //Debug.Log(hashID);
+    }
+
+    public PieceInfo(string path, string fakepath, string name, string[] abilities, int value, FactionType faction, PieceType pieceType)
+    {
+        modelPath = path;
+        displayName = name;
+        descriptions = abilities;
+        this.value = value;
+        factionType = faction;
+        this.pieceType = pieceType;
+
+        hashID = factionType.ToString().Remove(3) + displayName.Remove(3) + pieceType.ToString().Remove(3) + value;
+        Debug.Log(name + " is still using old pieceInfo");
     }
 }

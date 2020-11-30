@@ -6,7 +6,7 @@ public class ReinforcementKing : King {
 
     public int numberOfTimesPowerCalled = 3;
     public PieceType typeToSummon = PieceType.Knight;
-    public List<Vector2Int> locations;
+    public List<int> locations;
 
     int summonPieceIndex;
 
@@ -21,7 +21,7 @@ public class ReinforcementKing : King {
     {
         base.Awake();
         PieceInfo info = PieceList.allPieces.Find((obj) => obj.displayName == "wKnight");
-        summonPieceIndex = LoadManager.AddToAdditional(player, info, (player.forward > 0));
+        summonPieceIndex = LoadManager.AddToAdditional(player, info);
     }
 
     public void TurnOnButton()
@@ -67,7 +67,7 @@ public class ReinforcementKing : King {
 
         player.noticationCenter.TurnStart.Remove(ShowOptions);
         TurnOffButton();
-        locations = GameManager.instance.boardLogic.GetEmptyBackRowSquares(playerIndex);
+        locations = GameManager.instance.boardLogic.GetEmptySpawnPointsForPlayer(playerIndex);
         if (locations.Count == 0)
         {
             CancelReinforcement();
@@ -75,19 +75,18 @@ public class ReinforcementKing : King {
             return;
         }
         GameLog.AddText("Select Square for Reinforcement piece!");
-        GameManager.instance.boardLogic.HighlightSquares(locations, true);//highlight squares
+        GameManager.instance.boardLogic.SquaresWithIndicators(locations, true);//highlight squares
         GameNoticationCenter.instance.ClickedSquare.Add(SelectSquare);
     }
 
     public void SelectSquare()
     {
-        var selection = InputManager.lastGridPoint;
+        var selection = InputManager.lastSquareTouched;
         if (locations.Contains(selection))
         {
             GameLog.AddText("Reinforcements Arrived!");
-            GameManager.instance.boardLogic.UnhighlightSquares(); //unhighlight squares
-            GameManager.instance.boardLogic.moveLocations.Add(selection);
-            GameManager.instance.PlacePiece(LoadManager.additionalPieces[playerIndex][summonPieceIndex], selection); //summon piece to selectedSquare
+            GameManager.instance.boardLogic.RemoveAllIndicators(); //unhighlight squares
+            GameManager.instance.PlacePiece(LoadManager.additionalPieces[playerIndex][summonPieceIndex], selection, this.playerIndex, false); //summon piece to selectedSquare ignoring placement validity
 
             GameNoticationCenter.instance.ClickedSquare.Remove(SelectSquare);
             GameNoticationCenter.instance.RightClick.Remove(CancelReinforcement);
@@ -100,7 +99,7 @@ public class ReinforcementKing : King {
     public void CancelReinforcement()
     {
         GameLog.AddText(displayName + "''s Call for Reinforcements Cancelled!");
-        GameManager.instance.boardLogic.UnhighlightSquares();//unhighlight squares
+        GameManager.instance.boardLogic.RemoveAllIndicators();//unhighlight squares
         if (numberOfTimesPowerCalled == 0)
         {
             player.noticationCenter.PowerPressed.Add(CallForReinforcements);

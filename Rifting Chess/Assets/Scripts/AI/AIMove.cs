@@ -5,11 +5,11 @@ using UnityEngine;
 public class AIMove  {
 
     public Piece piece;
-    public Vector2Int destination;
+    public int destination; //square_id of destination
     public int weight = 0;
 
-    public AIMove(Piece p, Vector2Int l){
+    public AIMove(Piece p, int piece_id){
         piece = p;
-        destination = l;
+        destination = piece_id;
     }
 }

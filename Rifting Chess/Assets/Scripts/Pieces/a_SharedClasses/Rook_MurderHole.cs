@@ -7,19 +7,21 @@ public class Rook_MurderHole : Rook
     protected override void CalculateThreatLocations()
     {
         base.CalculateThreatLocations();
+        bool canJump = currentCaptureJump < maxCapturePieceJumpsInstance;
 
         foreach (int index in BishopIndexes)
         {
-            Square next = square.neighbors[index];
+            ThreatAlongAxis(index, canJump);
+            /*Square next = square.neighbors[index];
 
             if (next != null)
             {
-                ThreatInTheory.Add(next.personalCoord);
+                ThreatInTheory.Add(next.UniqueID);
                 if (next.piece != null && next.piece.playerIndex != playerIndex)
                 {
-                    ThreatWithPieces.Add(next.personalCoord);
+                    ThreatWithPieces.Add(next.UniqueID);
                 }
-            }
+            }*/
         }
     }
 }

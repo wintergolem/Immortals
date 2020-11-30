@@ -15,7 +15,7 @@ public abstract class Piece : Piece_Base
     public delegate void CaptureInterference(Piece piece);
     public CaptureInterference captureInterference;
 
-    protected List<Vector2Int> highlightLocations = new List<Vector2Int>();
+    protected List<int> highlightLocations = new List<int>();
 
     protected Piece()
     {
@@ -48,8 +48,8 @@ public abstract class Piece : Piece_Base
     protected int maxCapturePieceJumpsInstance = 0;
 
     protected abstract void CalculateMoveLocations(); //shows which squares can be moved to
-    protected List<Vector2Int> moveLocations = new List<Vector2Int>();
-    public List<Vector2Int> MoveLocations
+    protected List<int> moveLocations = new List<int>();
+    public List<int> MoveLocations
     {
         get
         {
@@ -60,10 +60,10 @@ public abstract class Piece : Piece_Base
             return moveLocations;
         }
     }
-    protected List<Vector2Int> ThreatWithPieces = new List<Vector2Int>();
-    protected List<Vector2Int> ThreatInTheory = new List<Vector2Int>();
+    protected List<int> ThreatWithPieces = new List<int>();
+    protected List<int> ThreatInTheory = new List<int>();
     protected  abstract void CalculateThreatLocations(); //shows which squares can be attacked
-    public List<Vector2Int> GetThreatLocations(bool asBoardIs = false)
+    public List<int> GetThreatLocations(bool asBoardIs = false)
     {
         if (ThreatInTheory.Count <= 0)
         {
@@ -121,13 +121,13 @@ public abstract class Piece : Piece_Base
     bool mapThreatened = false;
     public void CheckForClicked()
     {
-        if (InputManager.lastGridPoint == square.personalCoord) //clicked on this piece
+        if (InputManager.lastSquareTouched == square.UniqueID) //clicked on this piece
         {
             if (GameManager.instance.activePlayerIndex != playerIndex) //opponent clicked on this piece
             {
                 if (mapThreatened)
                 {
-                    GameManager.instance.boardLogic.UnhighlightSquares();
+                    GameManager.instance.boardLogic.RemoveAllIndicators();
                     highlightLocations.Clear();
                     mapThreatened = false;
                 }
@@ -152,13 +152,13 @@ public abstract class Piece : Piece_Base
             {
                 if (mapThreatened)
                 {
-                    GameManager.instance.boardLogic.UnhighlightSquares();
+                    GameManager.instance.boardLogic.RemoveAllIndicators();
                     mapThreatened = false;
                 }
             }
-            if (GameManager.instance.boardLogic.map.SquareAt(InputManager.lastGridPoint).piece != null && selected) //another piece was clicked on
+            if (GameManager.instance.boardLogic.map.SquareAt(InputManager.lastSquareTouched).piece != null && selected) //another piece was clicked on
             {
-                if (GameManager.instance.boardLogic.map.SquareAt(InputManager.lastGridPoint).piece.playerIndex == playerIndex) //other piece was friendly, unselect this piece
+                if (GameManager.instance.boardLogic.map.SquareAt(InputManager.lastSquareTouched).piece.playerIndex == playerIndex) //other piece was friendly, unselect this piece
                 {
                     UnSelect();
                 }
@@ -170,7 +170,7 @@ public abstract class Piece : Piece_Base
 
     public void WaitForClickOnSquare()
     {
-        var target = InputManager.lastGridPoint;
+        var target = InputManager.lastSquareTouched;
         if (MoveLocations.Contains(target)) //square is a valid square to move to
         {
             MoveTo(target);
@@ -182,8 +182,8 @@ public abstract class Piece : Piece_Base
 
     public void WaitForClickOnPiece()
     {
-        var target = InputManager.lastGridPoint;
-        if (target == square.personalCoord)
+        var target = InputManager.lastSquareTouched;
+        if (target == square.UniqueID)
         {
             UnSelect();
         }
@@ -208,26 +208,26 @@ public abstract class Piece : Piece_Base
 
     public void HighlightThreat( bool boardAsIs = false)
     {
-        List<Vector2Int> locations = MoveLocations;
-        GameManager.instance.boardLogic.HighlightSquares(locations, true);
+        List<int> locations = MoveLocations;
+        GameManager.instance.boardLogic.SquaresWithIndicators(locations, true);
         highlightLocations.Clear();
         highlightLocations.AddRange(locations);
         locations.Clear();
         locations = GetThreatLocations(boardAsIs);
-        GameManager.instance.boardLogic.HighlightSquares(locations, false);
+        GameManager.instance.boardLogic.SquaresWithIndicators(locations, false);
         highlightLocations.AddRange(locations);
     }
 
     public void Highlight()
     {
-        GameManager.instance.boardLogic.HighlightPiece(this);
+        GameManager.instance.boardLogic.ChangeHighlightOfPiece(this);
         HighlightThreat(true);
     }
 
     public void RemoveHighlight()
     {
-        GameManager.instance.boardLogic.HighlightPiece(this, true);
-        GameManager.instance.boardLogic.UnhighlightSquares(highlightLocations);
+        GameManager.instance.boardLogic.ChangeHighlightOfPiece(this, true);
+        GameManager.instance.boardLogic.RemoveSpecificIndicators(highlightLocations);
         mapThreatened = false;
     }
 

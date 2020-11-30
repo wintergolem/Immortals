@@ -8,9 +8,11 @@ public class DeploymentRunner : MonoBehaviour
     public DeploySelectDisplay display;
     public List<Player> players;
     public List<List<GameObject>> pieceLists = new List<List<GameObject>>();
+    public List<List<Square>> spawnPointsList = new List<List<Square>>();
     public int nextIndex;
     public int activePlayerIndex = 0;
     public bool rotateDeployment = false;
+    public bool deployBaseChessGame = false;
 
     Player ActivePlayer  {
         get
@@ -24,9 +26,80 @@ public class DeploymentRunner : MonoBehaviour
         players = GameManager.instance.players;
         pieceLists.Add( LoadManager.pieceList[0]);
         pieceLists.Add(LoadManager.pieceList[1]);
-
-        display.CreateButtons(pieceLists[0]);
         instance = this;
+
+        if (deployBaseChessGame)
+        {
+            CalculateSpawnPoints();
+            //spawn player 1's stuff
+            activePlayerIndex = 0;
+            var typed = pieceLists[0][0].GetComponent<Piece>().type;
+            foreach (Square s in spawnPointsList[0])
+            {
+                GameObject piece = null;
+                switch (s.baseSpawn)
+                {
+                    case "p":
+                        piece = pieceLists[0].Find(x => x.GetComponent<Piece>().displayName.Contains("Pawn"));//grab piece to place
+                        break;
+                    case "r":
+                        piece = pieceLists[0].Find(x => x.GetComponent<Piece>().displayName.Contains("Rook"));//grab piece to place
+                        break;
+                    case "b":
+                        piece = pieceLists[0].Find(x => x.GetComponent<Piece>().displayName.Contains("Bishop"));//grab piece to place
+                        break;
+                    case "k":
+                        piece = pieceLists[0].Find(x => x.GetComponent<Piece>().displayName.Contains("King"));//grab piece to place
+                        break;
+                    case "kn":
+                        piece = pieceLists[0].Find(x => x.GetComponent<Piece>().displayName.Contains("Knight"));//grab piece to place
+                        break;
+                    case "q":
+                        piece = pieceLists[0].Find(x => x.GetComponent<Piece>().displayName.Contains("Queen"));//grab piece to place
+                        break;
+                    default:
+                        continue;
+                }
+                pieceLists[activePlayerIndex].Remove(piece);//remove piece from list of things to place
+                GameManager.instance.boardLogic.AddPiece(piece, activePlayerIndex, s);//add piece to board
+            }
+            //spawn player 2's stuff
+            activePlayerIndex = 1;
+            foreach (Square s in spawnPointsList[1])
+            {
+                GameObject piece = null;
+                switch (s.baseSpawn)
+                {
+                    case "p":
+                        piece = pieceLists[1].Find(x => x.GetComponent<Piece>().displayName.Contains("Pawn"));//grab piece to place
+                        break;
+                    case "r":
+                        piece = pieceLists[1].Find(x => x.GetComponent<Piece>().displayName.Contains("Rook"));//grab piece to place
+                        break;
+                    case "b":
+                        piece = pieceLists[1].Find(x => x.GetComponent<Piece>().displayName.Contains("Bishop"));//grab piece to place
+                        break;
+                    case "k":
+                        piece = pieceLists[1].Find(x => x.GetComponent<Piece>().displayName.Contains("King"));//grab piece to place
+                        break;
+                    case "kn":
+                        piece = pieceLists[1].Find(x => x.GetComponent<Piece>().displayName.Contains("Knight"));//grab piece to place
+                        break;
+                    case "q":
+                        piece = pieceLists[1].Find(x => x.GetComponent<Piece>().displayName.Contains("Queen"));//grab piece to place
+                        break;
+                    default:
+                        continue;
+                }
+                pieceLists[activePlayerIndex].Remove(piece);//remove piece from list of things to place
+                GameManager.instance.boardLogic.AddPiece(piece, activePlayerIndex, s);//add piece to board
+            }
+            Finished();
+        }
+        else
+        {
+            display.CreateButtons(pieceLists[0]);
+        }
     }
 
     public static void PlaceNextPiece()
@@ -36,19 +109,18 @@ public class DeploymentRunner : MonoBehaviour
 
     void PlaceNext()
     {
-        Vector2Int target = InputManager.lastGridPoint;
+        int targetSquareID = InputManager.lastSquareTouched;
 
         //verifiy the last grid point is valid
-        Square square = GameManager.instance.boardLogic.map.SquareAt(target);
-        if (square.piece != null)
+        Square square = GameManager.instance.boardLogic.map.SquareAt(targetSquareID);
+        if (square.piece != null && !square.IsSpawnPoint(activePlayerIndex))
             return;
-        if ((activePlayerIndex == 0 && target.y > 1) || (activePlayerIndex == 1 && target.y < 6))
-            return;
-        if  (pieceLists[activePlayerIndex].Count != 0)//(pieceIndices[activePlayerIndex ] < LoadManager.pieceList[activePlayerIndex].Count)
+        if  (pieceLists[activePlayerIndex].Count != 0)
         {
-            var piece = pieceLists[activePlayerIndex][nextIndex];//LoadManager.pieceList[activePlayerIndex][pieceIndices[activePlayerIndex]];
-            pieceLists[activePlayerIndex].Remove(piece);
-            GameManager.instance.boardLogic.AddPiece(piece, activePlayerIndex, target.x, target.y);
+            var piece = pieceLists[activePlayerIndex][nextIndex];//grab piece to place
+            pieceLists[activePlayerIndex].Remove(piece);//remove piece from list of things to place
+            GameManager.instance.boardLogic.AddPiece(piece, activePlayerIndex, square);//add piece to board
+            HideSpawnOptions();
 
             if (rotateDeployment || pieceLists[activePlayerIndex].Count == 0 && activePlayerIndex != 1)
             {
@@ -102,5 +174,44 @@ public class DeploymentRunner : MonoBehaviour
         }
 
         loopCount = 0;
+    }
+
+    void ShowSpawnOptions()
+    {
+        spawnPointsList[activePlayerIndex].ForEach(i => i.Highlight());
+    }
+
+    void HideSpawnOptions()
+    {
+        foreach(Square square in GameManager.instance.boardLogic.map.board)
+        {
+            square.UnHighlight();
+        }
+    }
+    void CalculateSpawnPoints()
+    {
+        for(int i = 0; i<players.Count;i++)
+        {
+            spawnPointsList.Add(new List<Square>());
+        }
+
+        var board = GameManager.instance.boardLogic.map.board;
+        foreach( Square square in board)
+        {
+            if( square.spawnValue != 0 && square.spawnValue <= spawnPointsList.Count) //spawnValue is not zero and is not greater than the # of players
+            {
+                spawnPointsList[square.spawnValue - 1].Add(square);
+            }
+        }
+    }
+
+    public void PieceSelected(int index)
+    {
+        nextIndex = index;
+        if( spawnPointsList.Count == 0)
+        {
+            CalculateSpawnPoints();
+        }
+        ShowSpawnOptions();
     }
 }

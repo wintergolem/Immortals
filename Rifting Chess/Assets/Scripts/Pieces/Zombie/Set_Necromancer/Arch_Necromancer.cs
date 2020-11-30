@@ -14,7 +14,7 @@ public class Arch_Necromancer : King {
     {
         base.Awake();
         PieceInfo info = PieceList.allPieces.Find((obj) => obj.displayName == "Zombie");
-        summonPieceIndex = LoadManager.AddToAdditional(player, info, (player.forward > 0));
+        summonPieceIndex = LoadManager.AddToAdditional(player, info);
     }
 
     public void SummonPawn() {
@@ -34,13 +34,13 @@ public class Arch_Necromancer : King {
     }
 
     public void SummonPawnFinish(){
-        GameLog.AddText("Reap the Dead Done");
-        var gridpoint = InputManager.lastGridPoint;
-        GameManager.instance.PlacePiece(LoadManager.additionalPieces[playerIndex][summonPieceIndex],gridpoint, playerIndex);
+        var gridpoint = InputManager.lastSquareTouched;
+        GameManager.instance.PlacePiece(LoadManager.additionalPieces[playerIndex][summonPieceIndex],gridpoint, playerIndex, false);
         GameNoticationCenter.instance.ClickedSquare.Remove(SummonPawnFinish);
         GameNoticationCenter.instance.RightClick.Remove(CancelSummon);
         GameManager.instance.players[playerIndex].noticationCenter.runner.RunNext();
         GameNoticationCenter.instance.runner.RunNext();
+        GameLog.AddText("Reap the Dead Done");
     }
 
     public void CancelSummon(){

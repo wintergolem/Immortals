@@ -6,6 +6,15 @@ public static class PieceList {
 
     public static List<PieceInfo> allPieces = new List<PieceInfo> {
 
+        //Standard Pieces
+        new PieceInfo("Prefabs/Pieces/Basic/Bishop/B-B-Base", "Bishop", new string[0], 0, FactionType.Base, PieceType.Bishop),
+        new PieceInfo("Prefabs/Pieces/Basic/Rook/B-R-Base", "Rook", new string[0], 0, FactionType.Base, PieceType.Rook),
+        new PieceInfo("Prefabs/Pieces/Basic/Knight/B-KN-Base", "Knight", new string[0], 0, FactionType.Base, PieceType.Knight),
+        new PieceInfo("Prefabs/Pieces/Basic/King/B-K-Base", "King", new string[0], 0, FactionType.Base, PieceType.King),
+        new PieceInfo("Prefabs/Pieces/Basic/Queen/B-Q-Base", "Queen", new string[0], 0, FactionType.Base, PieceType.Queen),
+        new PieceInfo("Prefabs/Pieces/Basic/Pawn/B-P-Base", "Pawn", new string[0], 0, FactionType.Base, PieceType.Pawn),
+
+
           //UNDEAD FACTION
            //Base Set
             //Pawns
@@ -36,7 +45,7 @@ public static class PieceList {
         //champions
         new PieceInfo("Prefabs/Pieces/ZombieFaction/Queen/Z-Q-W-Necromistress", "Prefabs/Pieces/ZombieFaction/Queen/Z-Q-B-Necromistress", "Necromistress", new string[0], 10 , FactionType.Undead, PieceType.Queen),
         //leaders
-        new PieceInfo("Prefabs/Pieces/ZombieFaction/King/Z-K-W-Arch_Necromancer", "Prefabs/Pieces/ZombieFaction/King/Z-K-W-Arch_Necromancer", "Arch-Necromancer(King)", new string[0], 0, FactionType.Undead, PieceType.King),
+        new PieceInfo("Prefabs/Pieces/ZombieFaction/King/Z-K-W-Arch_Necromancer", "Prefabs/Pieces/ZombieFaction/King/Z-K-W-Arch_Necromancer", "Arch-Necromancer", new string[0], 0, FactionType.Undead, PieceType.King),
 
 
 
@@ -123,9 +132,9 @@ public static class PieceList {
         //queen
         new PieceInfo("Prefabs/Pieces/Basic/Queen/U-Q-W-Standard", "Prefabs/Pieces/Basic/Queen/U-Q-B-Standard", "Queen", new string[0], 9, FactionType.Warrior, PieceType.Queen),
         //king
-        new PieceInfo("Prefabs/Pieces/WarriorFaction/King/W-K-W-Standard", "Prefabs/Pieces/WarriorFaction/King/W-K-B-Standard", "Horselord (King)", new string[0], 0, FactionType.Warrior, PieceType.King),
-        new PieceInfo("Prefabs/Pieces/Basic/King/U-K-W-Standard", "Prefabs/Pieces/Basic/King/U-K-B-Standard", "King", new string[0], 0, FactionType.Warrior, PieceType.King)
-
+        new PieceInfo("Prefabs/Pieces/WarriorFaction/King/W-K-W-Reinforcement", "Prefabs/Pieces/WarriorFaction/King/W-K-B-Reinforcement", "Horselord (King)", new string[0], 0, FactionType.Warrior, PieceType.King),
+        new PieceInfo("Prefabs/Pieces/Basic/King/U-K-W-Standard", "Prefabs/Pieces/Basic/King/U-K-B-Standard", "King", new string[0], 0, FactionType.Warrior, PieceType.King),
+        new PieceInfo("Prefabs/Pieces/WarriorFaction/King/W-K-W-WarKing", "Prefabs/Pieces/WarriorFaction/King/W-B-W-WarKing", "WarKing Exodus", new string[0], 0, FactionType.Warrior, PieceType.King)
 
 
 

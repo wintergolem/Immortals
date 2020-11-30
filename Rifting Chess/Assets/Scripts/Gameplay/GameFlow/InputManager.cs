@@ -15,7 +15,9 @@ public class InputManager : MonoBehaviour {
     private bool appHasFocus = true;
     private bool cursorLocked = false;
 
-    public static Vector2Int lastGridPoint = new Vector2Int();
+    public static int lastSquareTouched = -1;
+
+    private int previousUpdateSquareTouchedID = -1;
 
     private void Start()
     {
@@ -50,35 +52,47 @@ public class InputManager : MonoBehaviour {
         RaycastHit hit;
 
 
-        if (!EventSystem.current.IsPointerOverGameObject() && Physics.Raycast(ray, out hit))
+        if (!EventSystem.current.IsPointerOverGameObject())
         {
-            var point = hit.point;
-            lastGridPoint = Geometry.GridFromPoint(point);
-
-            //send position to gameManager
-            GameNoticationCenter.TriggerEvent(GameEventTrigger.HoverSquare);   //GameManager.instance.MouseOver(gridPoint);
-            mouseOverLastUpdate = true;
-
-            if (Input.GetMouseButtonDown(0)) {
-                if (!GameManager.instance.deploymentDone)
-                {
-                    DeploymentRunner.PlaceNextPiece();
-                }
-                else if (!GameManager.instance.boardLogic.map.SquareAt(lastGridPoint).Empty)
-                    GameNoticationCenter.TriggerEvent(GameEventTrigger.ClickedOnPiece);
-                else
-                    GameNoticationCenter.TriggerEvent(GameEventTrigger.ClickedOnSquare);
-            }
-            else if (Input.GetMouseButtonDown(1))
+            if (Physics.Raycast(ray, out hit))
             {
-                GameNoticationCenter.TriggerEvent(GameEventTrigger.RightClick);
+                Square squareHit = hit.collider.gameObject.GetComponent<Square>();
+                if (squareHit)
+                {
+                    lastSquareTouched = squareHit.UniqueID;
+
+                    //send position to gameManager
+                    if (previousUpdateSquareTouchedID == squareHit.UniqueID)
+                    {
+                        GameNoticationCenter.TriggerEvent(GameEventTrigger.HoverSquare);
+                        mouseOverLastUpdate = true;
+                    }
+                    if (Input.GetMouseButtonDown(0))
+                    {
+                        if (!GameManager.instance.deploymentDone)
+                        {
+                            DeploymentRunner.PlaceNextPiece();
+                        }
+                        else if (!GameManager.instance.boardLogic.map.SquareAt(lastSquareTouched).IsEmpty)
+                            GameNoticationCenter.TriggerEvent(GameEventTrigger.ClickedOnPiece);
+                        else
+                            GameNoticationCenter.TriggerEvent(GameEventTrigger.ClickedOnSquare);
+                    }
+                    else if (Input.GetMouseButtonDown(1))
+                    {
+                        GameNoticationCenter.TriggerEvent(GameEventTrigger.RightClick);
+                    }
+                }
             }
-        }
-        else {
-            //send <no hit> to gamemanager
-            if (mouseOverLastUpdate) {
-                GameNoticationCenter.TriggerEvent(GameEventTrigger.RemoveHover); //GameManager.instance.RemoveMouseOver();
-                mouseOverLastUpdate = false;
+            else
+            {
+                //send <no hit> to gamemanager
+                if (mouseOverLastUpdate)
+                {
+                    GameNoticationCenter.TriggerEvent(GameEventTrigger.RemoveHover); //GameManager.instance.RemoveMouseOver();
+                    mouseOverLastUpdate = false;
+                }
+                //TODO: add deselect unit if clicked nowhere
             }
         }
     } //end of update()

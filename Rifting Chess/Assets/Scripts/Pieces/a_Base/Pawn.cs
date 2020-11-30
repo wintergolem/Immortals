@@ -16,14 +16,14 @@ public class Pawn : PieceAdanced
         var indexes = ForwardDirection > 0 ? new[] {7,0,1} : new[]{3,4,5};
 
         Square neig = square.neighbors[indexes[1]];
-        if (neig != null && neig.Empty)
+        if (neig != null && neig.IsEmpty)
         {
-            moveLocations.Add(neig.personalCoord);
+            moveLocations.Add(neig.UniqueID);
             if ( !hasMoved )
             {
                 neig = neig.neighbors[indexes[1]];
-                if(neig != null && neig.Empty)
-                    moveLocations.Add(neig.personalCoord);
+                if(neig != null && neig.IsEmpty)
+                    moveLocations.Add(neig.UniqueID);
             }
         }
 
@@ -43,10 +43,10 @@ public class Pawn : PieceAdanced
         {
             if (nein != null)
             {
-                ThreatInTheory.Add(nein.personalCoord);
-                if (!nein.Empty && nein.piece.playerIndex != playerIndex)
+                ThreatInTheory.Add(nein.UniqueID);
+                if (!nein.IsEmpty && nein.piece.CanBeDestroyedBy(this))
                 {
-                    ThreatWithPieces.Add(nein.personalCoord);
+                    ThreatWithPieces.Add(nein.UniqueID);
                 }
             }
         }

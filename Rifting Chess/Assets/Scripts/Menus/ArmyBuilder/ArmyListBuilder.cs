@@ -9,7 +9,8 @@ public class ArmyListBuilder : MonoBehaviour {
     public GameObject pieceBorder;
     public GameObject selectedPiecesDisplay;
     public GameObject availablePiecesDisplay;
-    public Dropdown factionSelector;
+    //public Dropdown factionSelector;  //TODO: replace with textfield
+    public Text factionText;
     public InputField nameInput;
     public Button saveButton;
     public Text pointsIndicator;
@@ -18,15 +19,14 @@ public class ArmyListBuilder : MonoBehaviour {
     FactionType activeFaction;
     List<GameObject> createdBorders = new List<GameObject>();
     List<GameObject> createdButtons = new List<GameObject>();
-    ArmyList list;
+    ArmyList armyList;
 
     void Start () {
         pieces = PieceList.allPieces;
         PieceBorder.armyBuild = this;
         if (Account.instance.selectedList == null)
         {
-            activeFaction = FactionType.Undead;
-            list = new ArmyList
+            armyList = new ArmyList
             {
                 faction = FactionType.Undead,
                 displayName = ""
@@ -35,21 +35,21 @@ public class ArmyListBuilder : MonoBehaviour {
         }
         else
         {
-            list = Account.instance.selectedList;
-            Account.instance.savedLists.Remove(list);
-            activeFaction = list.faction;
-            factionSelector.value = (int)(list.faction);
-            nameInput.text = list.displayName;
+            armyList = Account.instance.selectedList;
+            Account.instance.savedLists.Remove(armyList); //TODO : make opinional
+            activeFaction = armyList.faction;
+            factionText.text = activeFaction.ToString();
+            nameInput.text = armyList.displayName;
 
-            foreach (PieceInfo info in list.pieces)
+            foreach (PieceInfo info in armyList.pieces)
             {
-                var button = Instantiate(pieceOptionButton);
+                var button = Instantiate(pieceOptionButton, selectedPiecesDisplay.transform , false);
                 button.GetComponent<PieceOptionButton>().Init(this, info, PieceOptionButton.OptionState.Remove);
-                button.transform.SetParent(selectedPiecesDisplay.transform);
             }
         }
         PieceBorder.armyBuild = this;
         CreateButtons();
+        //LayoutRebuilder.MarkLayoutForRebuild(availablePiecesDisplay.transform as RectTransform);
     }
 
     void CreateButtons(){
@@ -65,28 +65,20 @@ public class ArmyListBuilder : MonoBehaviour {
 
     void CreateBorder(PieceType pieceType, List<PieceInfo> pieceCollection)
     {
-        var border = Instantiate(pieceBorder);
+        var border = Instantiate(pieceBorder, availablePiecesDisplay.transform, false);
         var script = border.GetComponent<PieceBorder>();
         List<PieceInfo> infos = pieceCollection.FindAll((obj) => obj.pieceType == pieceType);
         script.Startup(infos, "-" + pieceType.ToString());
-        border.transform.SetParent(availablePiecesDisplay.transform);
-        script.CreateButtons(activeFaction);
+        script.CreateButtons(armyList.faction);
         createdBorders.Add(border);
     }
 
     void CheckSaveButton(){
-        saveButton.enabled = list.HasKing;
-    }
-
-    public void FactionSelectorChanged( ) {
-        activeFaction = (FactionType)factionSelector.value;
-        createdBorders.ForEach( button => Destroy(button) );
-        createdButtons.ForEach(button => Destroy(button));
-        CreateButtons();
+        saveButton.enabled = armyList.HasKing;
     }
 
     public bool OptionAdd(PieceInfo info) {
-        if (list.AttemptAdd(info)){
+        if (armyList.AttemptAdd(info)){
             CheckSaveButton();
             var button = Instantiate(pieceOptionButton);
             button.GetComponent<PieceOptionButton>().Init(this, info, PieceOptionButton.OptionState.Remove);
@@ -99,21 +91,21 @@ public class ArmyListBuilder : MonoBehaviour {
     }
 
     public void OptionRemove(PieceInfo info){
-        list.Remove(info);
+        armyList.Remove(info);
         UpdatePointsIndicator();
     }
 
     public void SaveButtonPressed(){
         //get name
         if (!string.IsNullOrEmpty(nameInput.text))
-            list.displayName = nameInput.text;
+            armyList.displayName = nameInput.text;
         else
-            if (string.IsNullOrEmpty(list.displayName))
-                list.displayName = "UnNamed";
+            if (string.IsNullOrEmpty(armyList.displayName))
+                armyList.displayName = "Default Name";
 
-        //TODO: save list to disk
-        Account.AssignList(list, 0);
-        Account.instance.savedLists.Add(list);
+        //TODO: save armyList to disk
+        Account.AssignList(armyList, 0);
+        Account.instance.savedLists.Add(armyList);
         LoadManager.SaveAllLists();
         LoadManager.LoadAllLists();
 
@@ -122,7 +114,7 @@ public class ArmyListBuilder : MonoBehaviour {
 
     public void UpdatePointsIndicator()
     {
-        pointsIndicator.text = list.ListPointsUsed + " /  " + list.maxPoints;
+        pointsIndicator.text = armyList.ListPointsUsed + " /  " + armyList.maxPoints;
     }
 
     public void BackButton()

@@ -7,9 +7,7 @@ public class AutoDeploy : MonoBehaviour
     public DeploySelectDisplay display;
     public DeploymentRunner runner;
 
-    public Vector2Int deployAt = new Vector2Int(-1, 0);
-    int playerOneSecondRow = 0;
-    int playerTwoSecondRow = 0;
+    public int deployAt = 0; //squareID
 
     void Update()
     {
@@ -18,7 +16,7 @@ public class AutoDeploy : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.A))
             {
                 display.ButtonPressed(0);
-                InputManager.lastGridPoint = GetNextLocation();
+                InputManager.lastSquareTouched = GetNextLocation();
                 DeploymentRunner.PlaceNextPiece();
             }
         }
@@ -28,18 +26,18 @@ public class AutoDeploy : MonoBehaviour
         }
     }
 
-    Vector2Int GetNextLocation()
+    int GetNextLocation()
     {
-        deployAt = new Vector2Int(deployAt.x + 1, deployAt.y);
-        if (deployAt.x >= GameManager.instance.boardLogic.map.squares.GetLength(0))
+        Square[] squares = GameManager.instance.boardLogic.map.board;
+        int activePlayer = GameManager.instance.deploymentRunner.activePlayerIndex;
+        foreach (Square square in squares)
         {
-            deployAt.x = 0;
-            deployAt.y = runner.activePlayerIndex == 0 ? 0 + playerOneSecondRow : 7 - playerTwoSecondRow;
-            if (runner.activePlayerIndex == 0)
-                playerOneSecondRow = 1;
-            else
-                playerTwoSecondRow = 1;
+            if (square.IsSpawnPoint(activePlayer) && square.IsEmpty)
+            {
+                return square.UniqueID;
+            }
         }
-        return deployAt;
+        Debug.LogError("Unable to find place to spawn piece for player " + GameManager.instance.deploymentRunner.activePlayerIndex);
+        return 0;
     }
 }

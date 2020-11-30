@@ -28,7 +28,8 @@ public class GameManager : MonoBehaviour
     }
     public bool moveTaken = false;
     public bool deploymentDone = false;
-    public bool endHasRun = false;
+    public bool deploymentStarted = false;
+    public bool turnIsOver = false;
 
     public int activePlayerIndex;
     private InputManager inputManager;
@@ -58,10 +59,13 @@ public class GameManager : MonoBehaviour
         players.Add(new Player("Black", false, Account.instance.opponentType, 1));
 
         //add lists to players
-        LoadManager.FillPrefabs(players[0],Account.instance.GetArmyList(0) ,true);
-        LoadManager.FillPrefabs(players[1],Account.instance.GetArmyList(1), false);
-        //end
-        deploymentRunner.Startup();
+        //check for null lists, should be for debugging only!
+        if( Account.instance.GetArmyList(0) == null )
+        {
+            LoadManager.LoadAllLists();
+        }
+        LoadManager.FillPrefabs(players[0],Account.instance.GetArmyList(0));
+        LoadManager.FillPrefabs(players[1],Account.instance.GetArmyList(1));
         GameNoticationCenter.instance.HoverSquare.Add(boardLogic.MouseOver);
         GameNoticationCenter.instance.RemoveHover.Add(boardLogic.RemoveMouseOver);
 
@@ -71,7 +75,7 @@ public class GameManager : MonoBehaviour
 
     void OnDestroy()
     {
-        GameNoticationCenter.Surge();
+        GameNoticationCenter.Purge();
         foreach (Player p in players)
             p.noticationCenter.Purge();
     }
@@ -79,6 +83,11 @@ public class GameManager : MonoBehaviour
     #region GAME FLOW
 
     private void Update() {
+        if( !deploymentStarted )
+        {
+            deploymentStarted = true;
+            deploymentRunner.Startup();
+        }
         if (!HasFocus || !deploymentDone)
             return;
         if (gameOver)
@@ -102,7 +111,7 @@ public class GameManager : MonoBehaviour
         }
         else if (moveTaken && !activePlayer.noticationCenter.runner.running && !inactivePlayer.noticationCenter.runner.running)
         {
-            if (endHasRun)
+            if (turnIsOver)
             {
                 RotatePlayers();
             }
@@ -110,13 +119,13 @@ public class GameManager : MonoBehaviour
             {
                 activePlayer.noticationCenter.runner.SetEndAction(NextPlayer);
                 activePlayer.noticationCenter.TriggerEvent(EventToTrigger.EndOfTurn);
-                endHasRun = true;
+                turnIsOver = true;
             }
         }
     }
 
     public void NextPlayer(){
-        boardLogic.UnhighlightSquares();
+        boardLogic.RemoveAllIndicators();
     }
 
     void RotatePlayers() {
@@ -136,15 +145,20 @@ public class GameManager : MonoBehaviour
 
         }
         moveTaken = false;
+        turnIsOver = false;
     }
 
-    public void PlacePiece(GameObject piece, Vector2Int gridPoint , int playerIndex = 0)
+    public void PlacePiece(GameObject piece, int square_id , int playerIndex, bool checkValidPlacement = true)
     {
-        if (boardLogic.GridPointValidMoveTarget(gridPoint))
+        if (boardLogic.SquareValidMoveTarget(square_id) || !checkValidPlacement)
         {
-            boardLogic.AddPiece(piece, ActivePlayerIndex, gridPoint.x, gridPoint.y);
+            boardLogic.AddPiece(piece, ActivePlayerIndex, square_id);
         }
-        boardLogic.UnhighlightSquares();
+        else
+        {
+            Debug.LogWarning("Unable to place (" + piece.name + ") at " + square_id.ToString() + " due not being a valid move");
+        }
+        boardLogic.RemoveAllIndicators();
     }
 
     public void EndGame()

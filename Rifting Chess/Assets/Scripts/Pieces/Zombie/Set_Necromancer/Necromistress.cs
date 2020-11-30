@@ -20,11 +20,11 @@ public class Necromistress : Queen {
     {
         base.Awake();
 
-        pawnToSummon = LoadManager.AddToAdditional(player, PieceList.allPieces.Find((obj) => obj.displayName == "Zombie"), (player.forward > 0));
-        rookToSummon = LoadManager.AddToAdditional(player, PieceList.allPieces.Find((obj) => obj.displayName == "Undead Rook"), (player.forward > 0));
-        knightToSummon = LoadManager.AddToAdditional(player, PieceList.allPieces.Find((obj) => obj.displayName == "Undead Knight"), (player.forward > 0));
-        bishopToSummon = LoadManager.AddToAdditional(player, PieceList.allPieces.Find((obj) => obj.displayName == "Unholy Bishop"), (player.forward > 0));
-        queenToSummon = LoadManager.AddToAdditional(player, PieceList.allPieces.Find((obj) => obj.displayName == "Necromistress"), (player.forward > 0));
+        pawnToSummon = LoadManager.AddToAdditional(player, PieceList.allPieces.Find((obj) => obj.displayName == "Zombie") );
+        rookToSummon = LoadManager.AddToAdditional(player, PieceList.allPieces.Find((obj) => obj.displayName == "Undead Rook") );
+        knightToSummon = LoadManager.AddToAdditional(player, PieceList.allPieces.Find((obj) => obj.displayName == "Undead Knight") );
+        bishopToSummon = LoadManager.AddToAdditional(player, PieceList.allPieces.Find((obj) => obj.displayName == "Unholy Bishop") );
+        queenToSummon = LoadManager.AddToAdditional(player, PieceList.allPieces.Find((obj) => obj.displayName == "Necromistress") );
     }
 
     public void CheckQueenCaptured()
@@ -83,8 +83,8 @@ public class Necromistress : Queen {
 
     public void SummonCapturedPieceFinish(){
         GameLog.AddText(displayName + "''s Tortured Servitude Finished");
-        var gridPoint = InputManager.lastGridPoint;
-        GameManager.instance.PlacePiece(LoadManager.additionalPieces[playerIndex][pieceToSummon], gridPoint);
+        var gridPoint = InputManager.lastSquareTouched;
+        GameManager.instance.PlacePiece(LoadManager.additionalPieces[playerIndex][pieceToSummon], gridPoint, this.playerIndex);
         GameManager.instance.moveTaken = true;
         GameNoticationCenter.instance.ClickedSquare.Remove(SummonCapturedPieceFinish);
         GameNoticationCenter.instance.RightClick.Remove(CancelSummon);

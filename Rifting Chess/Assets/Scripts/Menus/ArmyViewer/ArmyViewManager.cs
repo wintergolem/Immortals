@@ -8,6 +8,12 @@ public class ArmyViewManager : MonoBehaviour
     public GameObject ArmyViewOption;
     public GameObject viewContent;
 
+    public GameObject factionSelector;
+    public GameObject factionSelectorContent; //set in editor
+    public GameObject FactionSelectOption;
+
+
+    bool factionSelectionCreated = false;
     void Start()
     {
 
@@ -22,9 +28,34 @@ public class ArmyViewManager : MonoBehaviour
         }
     }
 
-    public void CreateNewArmy()
+    public void ShowFactionSelector()
     {
-        Account.instance.selectedList = null;
+        if( !factionSelectionCreated )
+        {
+            FactionType[] factionList = FactionTypeFunc.GetArray();
+            foreach( FactionType faction in factionList)
+            {
+                var option = Instantiate(FactionSelectOption);
+                option.GetComponent<FactionOption>().Init(faction , CreateNewArmy);
+                option.transform.SetParent(factionSelectorContent.transform);
+            }
+
+            factionSelectionCreated = true;
+        }
+
+        factionSelector.SetActive(true);
+    }
+
+    public void HideFactionSelector()
+    {
+        factionSelector.SetActive(false);
+    }
+
+    public void CreateNewArmy( FactionType factionSelected)
+    {
+        ArmyList armyList = new ArmyList();
+        armyList.faction = factionSelected;
+        Account.instance.selectedList = armyList;
         LoadManager.LoadScene(LoadManager.SceneList.ArmyBuilder);
     }
 

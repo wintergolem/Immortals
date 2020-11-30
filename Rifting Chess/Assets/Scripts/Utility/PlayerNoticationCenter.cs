@@ -98,7 +98,7 @@ public class GameNoticationCenter {
 
     public NotificationQueueRunner runner= new NotificationQueueRunner() ;
 
-    public static void Surge()
+    public static void Purge()
     {
         instance.HoverSquare = new List<Action>();
         instance.ClickedSquare = new List<Action>();

@@ -28,7 +28,9 @@ public class GameCreate : MonoBehaviour {
 
         List<string> mapListStringArray = new List<string>
         {
+            LoadManager.SceneList.ChessMap.ToString(),
             LoadManager.SceneList.ForestMap.ToString()
+            
         };
         mapSelect.AddOptions(mapListStringArray);
 
@@ -68,6 +70,9 @@ public class GameCreate : MonoBehaviour {
         switch (mapSelect.selectedValue)
         {
             case 0:
+                selectedMap = LoadManager.SceneList.ChessMap;
+                break;
+            case 1:
                 selectedMap = LoadManager.SceneList.ForestMap;
                 break;
             default:

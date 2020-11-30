@@ -32,7 +32,7 @@ public class PriestKing : King {
     public void DivineRetributionEnd()
     {
         GameLog.AddText( enemyPieceCaptured.displayName + " captured via Divine Retribution" );
-        CaptureEnemyPiece(enemyPieceCaptured, Vector2Int.zero); 
+        CaptureEnemyPiece(enemyPieceCaptured, -1); 
         GameManager.instance.moveTaken = true;
 
         player.noticationCenter.PowerPressed.Remove(DivineRetributionEnd);

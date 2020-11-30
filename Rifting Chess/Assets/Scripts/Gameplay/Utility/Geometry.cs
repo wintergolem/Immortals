@@ -1,6 +1,6 @@
 ﻿
 using UnityEngine;
-
+/*
 public class Geometry
 {
     public static float squareWidth = 0;
@@ -31,3 +31,12 @@ public class Geometry
     }
 }
 
+    */
+
+public class TileAppearance
+{
+    public static GameObject tileHighlightPrefab;
+    public static GameObject moveLocationPrefab;
+    public static GameObject attackLocationPrefab;
+
+}

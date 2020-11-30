@@ -21,15 +21,16 @@ public abstract class Piece_Base : MonoBehaviour
     {
         this.playerIndex = playerIndex;
         player = GameManager.instance.players[playerIndex];
+        SelectModelToUse();
     }
 
     #region basic movement
-    public virtual void MoveTo(Vector2Int space, bool voluntary = true)
+    public virtual void MoveTo(int square_id, bool voluntary = true)
     {
         square.RemovePiece();
-        GameManager.instance.boardLogic.map.squares[space.x, space.y].AddPiece(this); //this adds "square" to this as well
+        GameManager.instance.boardLogic.map.AddPieceToSquare(this, square_id); //this adds "square" to this as well
         hasMoved = true;
-        transform.position = Geometry.PointFromGrid(space);
+        transform.position = GameManager.instance.boardLogic.map.board[square_id].transform.position;
         GameManager.instance.moveTaken = true;
         GameNoticationCenter.TriggerEvent(GameEventTrigger.PieceMoved);
     }
@@ -49,18 +50,18 @@ public abstract class Piece_Base : MonoBehaviour
 
     #endregion
     #region capture
-    public void CaptureEnemyPiece(Piece_Base targetPiece, Vector2Int target)
+    public void CaptureEnemyPiece(Piece_Base targetPiece, int target)
     {
         GameManager.instance.pieceCapturing = this;
         GameManager.instance.pieceBeingCaptured = targetPiece;
-        GameLog.AddText(displayName + " captured " + targetPiece.displayName + " at " + targetPiece.square.personalCoord.ToString() + "\n");
+        GameLog.AddText(displayName + " captured " + targetPiece.displayName + " at " + targetPiece.square.UniqueID.ToString() + "\n");
 
         player.noticationCenter.TriggerEvent(EventToTrigger.EnemyCaptured);
 
         player.capturedPieces.Add(targetPiece as Piece);
         (targetPiece as Piece).OnCaptured();
 
-        if (moveWithCapture || target == Vector2Int.zero)
+        if (moveWithCapture || target == -1)
         {
             MoveTo(target);
         }
@@ -80,6 +81,26 @@ public abstract class Piece_Base : MonoBehaviour
     #endregion
 
     #region visual
+    public GameObject[] models; //set in editor; character models attached to this gameobject ( "White is index 1; black index 0")
     protected abstract void UnSelect();
+
+    //Destory unused character models for this piece
+    void SelectModelToUse()
+    {
+        //TODO: selected model should come from armylist object
+        int modelIndexToKeepActive = 0;
+        if (playerIndex <= models.Length)
+        {
+            modelIndexToKeepActive = playerIndex;
+        }
+        for( int i =0; i<models.Length; i++)
+        {
+            if( i != modelIndexToKeepActive)
+            {
+                Destroy(models[i]);
+            }
+        }
+        //TODO: Ensure model is rotated correctly
+    }
     #endregion
 }

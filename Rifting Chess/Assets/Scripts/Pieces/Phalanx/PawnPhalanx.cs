@@ -12,17 +12,28 @@ public class PawnPhalanx : Pawn {
     }
 
     public override void CheckMap() {
-        //check left
-        if (square.personalCoord.x != 7 &&  !square.neighbors[2].Empty && square.neighbors[2].piece.type == PieceType.Pawn){
-            inPhalanx = (square.personalCoord.x != 6 && !square.neighbors[2].neighbors[2].Empty && square.neighbors[2].neighbors[2].piece.type == PieceType.Pawn)
-                || (square.personalCoord.x != 0 && !square.neighbors[6].Empty && square.neighbors[6].piece.type == PieceType.Pawn);
-        } else {inPhalanx = false;}
-        if (!inPhalanx)  //check right two spaces
-        if (square.personalCoord.x > 1 && !square.neighbors[6].Empty && square.neighbors[6].piece.type == PieceType.Pawn) {
-                inPhalanx = !square.neighbors[6].neighbors[6].Empty && square.neighbors[6].neighbors[6].piece.type == PieceType.Pawn;
-        }
+
+        Square left = square.neighbors[6];
+        Square right = square.neighbors[2];
+
+        inPhalanx = (left != null && !left.IsEmpty && left.piece.displayName == this.displayName) && (right != null && !right.IsEmpty && right.piece.displayName == displayName);
 
         moveWithCapture = !inPhalanx;
         GameManager.instance.players[playerIndex].noticationCenter.runner.RunNext();
+    }
+
+    protected override void CalculateThreatLocations()
+    {
+        base.CalculateThreatLocations();
+
+        if( inPhalanx )
+        {
+            int forwardIndex = ForwardDirection > 0 ? 0 : 4;
+            Square forwardSquare = square.neighbors[forwardIndex];
+            if( forwardSquare != null && !forwardSquare.IsEmpty && forwardSquare.piece.CanBeDestroyedBy(this))
+            {
+                ThreatWithPieces.Add(forwardSquare.UniqueID);
+            }
+        }
     }
 }

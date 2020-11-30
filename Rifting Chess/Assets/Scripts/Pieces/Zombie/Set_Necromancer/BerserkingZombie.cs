@@ -52,9 +52,9 @@ public class BerserkingZombie : ZombiePawn {
             moveLocations.Clear();
             foreach (Square neigh in square.neighbors)
             {
-                if (!neigh.Empty && neigh.piece.CanBeDestroyedBy(this))
+                if (!neigh.IsEmpty && neigh.piece.CanBeDestroyedBy(this))
                 {
-                    moveLocations.Add(neigh.personalCoord);
+                    moveLocations.Add(neigh.UniqueID);
                 }
             }
         }

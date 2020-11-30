@@ -10,35 +10,30 @@ public class BoardAppearance : MonoBehaviour
     public GameObject moveLocationPrefab;
     public GameObject attackLocationPrefab;
 
-    [SerializeField]
-    private GameObject tileHighlight;
-    public List<GameObject> locationHighlights = new List<GameObject>();
-    private List<GameObject> attackHighlights = new List<GameObject>();
+    Square highlightedSquare;
+
+    Square[] Board
+    {
+        get
+        {
+            return GameManager.instance.boardLogic.map.board;
+        }
+    }
 
     // - METHODS
     #region Setup
     public void Start()
     {
-        tileHighlight = Instantiate(tileHighlightPrefab, Geometry.PointFromGrid(new Vector2Int(0, 0)), Quaternion.identity, gameObject.transform);
-        tileHighlight.SetActive(false);
-        selectedParticle.SetActive(false);
+        TileAppearance.attackLocationPrefab = attackLocationPrefab;
+        TileAppearance.moveLocationPrefab = moveLocationPrefab;
+        TileAppearance.tileHighlightPrefab = tileHighlightPrefab;
 
-        for (int i = 0; i < 20; i++)
-        {
-            locationHighlights.Add( Instantiate(moveLocationPrefab, Geometry.PointFromGrid(new Vector2Int(0, 0)), Quaternion.identity, gameObject.transform) );
-            locationHighlights[i].SetActive(false);
-        }
-        for (int i = 0; i < 10; i++ )
-        {
-            attackHighlights.Add(Instantiate(attackLocationPrefab, Geometry.PointFromGrid(new Vector2Int(0, 0)), Quaternion.identity, gameObject.transform));
-            attackHighlights[i].SetActive(false);
-        }
+        selectedParticle.SetActive(false);
     }
 
-    public GameObject AddPiece(GameObject piece, int col, int row){
-        Vector2Int gridPoint = Geometry.GridPoint(col, row);
+    public GameObject AddPiece(GameObject piece, Square square){
         GameObject newPiece = Instantiate(piece, Vector3.zero, Quaternion.identity);
-        newPiece.transform.position = Geometry.PointFromGrid(gridPoint);
+        newPiece.transform.position = square.transform.position;
         return newPiece;
     }
     #endregion
@@ -64,15 +59,29 @@ public class BoardAppearance : MonoBehaviour
         // renderers.material = defaultMaterial;
     }
 
-    public void MouseOver(Vector2Int gridPoint)
+    public void MouseOver(int square_id)
     {
-        tileHighlight.SetActive(true);
-        tileHighlight.transform.position = Geometry.PointFromGrid(gridPoint);
+        if( highlightedSquare != null)
+        {
+            Debug.LogWarning("Highlighted Square was not null");
+            highlightedSquare.UnHighlight();
+            highlightedSquare = null;
+        }
+        Board[square_id].Highlight();
+        highlightedSquare = Board[square_id];
     }
 
     public void RemoveMouseOver()
     {
-        tileHighlight.SetActive(false);
+        if (highlightedSquare == null)
+        {
+            Debug.LogWarning("Highlighted Square was null");
+        }
+        else
+        {
+            highlightedSquare.UnHighlight();
+            highlightedSquare = null;
+        }
     }
 
     public void FlipBoard() {
@@ -81,80 +90,42 @@ public class BoardAppearance : MonoBehaviour
 
     #endregion
     #region Move Highlights
-    public void PlaceMoveHighlights(List<Vector2Int> moveLocations)
+    public void PlaceMoveIndicators(List<int> moveLocations)
     {
-        foreach (Vector2Int loc in moveLocations)
+        foreach (int id in moveLocations)
         {
-            foreach (GameObject tile in locationHighlights)
-            {
-                if (!tile.activeSelf)
-                {
-                    tile.SetActive(true);
-                    tile.transform.position = Geometry.PointFromGrid(loc);
-                    break;
-                }
-            }
+            Board[id].ShowMoveIndicator();
         }
     }
 
-    public void PlaceThreatenHighlights(List<Vector2Int> locations)
+    public void PlaceThreatIndicators(List<int> locations)
     {
-        foreach (Vector2Int loc in locations)
+        foreach (int id in locations)
         {
-            foreach (GameObject tile in attackHighlights)
-            {
-                if (!tile.activeSelf)
-                {
-                    tile.SetActive(true);
-                    tile.transform.position = Geometry.PointFromGrid(loc);
-                    break;
-                }
-            }
+            Board[id].ShowAttackIndicator();
         }
     }
-    public void RemoveMoveHighlights()
+    public void RemoveAllIndicators()
     {
-        foreach (GameObject highlight in locationHighlights)
+       foreach( Square square in Board)
         {
-            highlight.SetActive(false);
-        }
-        foreach (GameObject highlight in attackHighlights)
-        {
-            highlight.SetActive(false);
+            square.HideAttackIndicator();
+            square.HideMoveIndicator();
         }
     }
 
-    public void RemoveMoveHighlights( List<Vector2Int> locations)
+    public void RemoveIndicatorSpecific( List<int> locations)
     {
-        foreach (GameObject highlight in locationHighlights)
+        foreach ( int id in locations)
         {
-            if (locations.Contains( Geometry.GridFromPoint(highlight.transform.position)))
-            {
-                highlight.SetActive(false);
-            }
-        }
-        foreach (GameObject highlight in attackHighlights)
-        {
-            if (locations.Contains(Geometry.GridFromPoint(highlight.transform.position)))
-            {
-                highlight.SetActive(false);
-            }
+            Board[id].HideMoveIndicator();
+            Board[id].HideAttackIndicator();
         }
     }
     #endregion
 
     void OnDestroy()
     {
-        Destroy(tileHighlight);
-        int i = 0;
-        for (; i < attackHighlights.Count; i ++)
-        {
-            Destroy(attackHighlights[i]);
-            Destroy(locationHighlights[i]);
-        }
-        for (; i < locationHighlights.Count; i++)
-        {
-            Destroy(locationHighlights[i]);
-        }
+       
     }
 }

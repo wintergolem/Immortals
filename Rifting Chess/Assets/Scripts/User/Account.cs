@@ -16,6 +16,9 @@ public class Account {
     int silverTotal = 0;
     int goldTotal = 0;
 
+    int threatIndicatorKey = -1;
+    int moveIndicatorKey = -1;
+
     private Account()
     {
         savedLists = new List<ArmyList>();
@@ -58,5 +61,17 @@ public class Account {
 
         instance.silverTotal = serverCurrency[0];
         instance.goldTotal = serverCurrency[1];
+    }
+
+    public void RunUnlockCheckOnIndicators(ref IndicatorBase[] indicators, bool checkingThreat = true)
+    {
+        int checkAgainst;
+        if (checkingThreat) checkAgainst = threatIndicatorKey;
+        else checkAgainst = moveIndicatorKey;
+
+        foreach (IndicatorBase indicator in indicators)
+        {
+            indicator.SetLock((indicator.unlockKey & checkAgainst) == checkAgainst);
+        }
     }
 }

@@ -7,7 +7,8 @@ public class ScrollViewFill : MonoBehaviour
 
     public GameObject optionPrefab;
 
-    public int selectedValue = -1;
+    public int selectedValue = 0;
+    ScrollViewOption selectedOption;
 
     public void AddOptions(List<ListSummary> lists)
     {
@@ -28,5 +29,12 @@ public class ScrollViewFill : MonoBehaviour
             option.GetComponent<ScrollViewOption>().AddInfo(maps[i], this, i);
             option.transform.SetParent(this.transform);
         }
+    }
+
+    public void ClaimSelected( ScrollViewOption option)
+    {
+        selectedOption.Unselect();
+        selectedValue = option.value;
+        selectedOption = option;
     }
 }

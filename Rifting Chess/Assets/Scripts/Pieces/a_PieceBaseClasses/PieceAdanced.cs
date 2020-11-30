@@ -43,8 +43,8 @@ public abstract class PieceAdanced : Piece
                 }
             }
 
-            moveLocations.Add(next.personalCoord);
-        } while (check.Empty);
+            moveLocations.Add(next.UniqueID);
+        } while (check.IsEmpty);
     }
 
     protected void ThreatAlongAxis(int index, bool canJump)
@@ -63,10 +63,10 @@ public abstract class PieceAdanced : Piece
             if (next.piece == null)
                 continue;
 
-            if (next.piece.playerIndex != playerIndex)
+            if (next.piece.CanBeDestroyedBy(this))
             {
-                ThreatInTheory.Add(next.personalCoord);
-                ThreatWithPieces.Add(next.personalCoord);
+                ThreatInTheory.Add(next.UniqueID);
+                ThreatWithPieces.Add(next.UniqueID);
             }
 
             if (canJump && currentAttackJumpCon < maxCapturePieceJumpsCon)
@@ -77,10 +77,10 @@ public abstract class PieceAdanced : Piece
             {
                 break;
             }
-        } while (check.Empty);
+        } while (check.IsEmpty);
     }
 
-    protected void MoveAlongL()
+    protected void MoveAlongL( List<int> special = null)
     {
         List<int> moveDirections = new List<int>(RookIndexes);
         Vector2Int[] checkDirections = new Vector2Int[8];
@@ -96,14 +96,16 @@ public abstract class PieceAdanced : Piece
             {
                 Vector2Int coord = checkDirections[index];
                 Square temp = check.neighbors[coord.x];
-                if (temp != null && (temp.Empty || temp.piece.playerIndex != playerIndex))
+                if (temp != null && (temp.IsEmpty || temp.piece.playerIndex != playerIndex))
                 {
-                    moveLocations.Add(temp.personalCoord);
+                    moveLocations.Add(temp.UniqueID);
+                    if( special != null ) { special.Add(temp.UniqueID); }
                 }
                 temp = check.neighbors[coord.y];
-                if (temp != null && (temp.Empty || temp.piece.playerIndex != playerIndex))
+                if (temp != null && (temp.IsEmpty || temp.piece.playerIndex != playerIndex))
                 {
-                    moveLocations.Add(temp.personalCoord);
+                    moveLocations.Add(temp.UniqueID);
+                    if (special != null) { special.Add(temp.UniqueID); }
                 }
             }
         }
@@ -127,19 +129,19 @@ public abstract class PieceAdanced : Piece
                 Square temp = check.neighbors[coord.x];
                 if (temp != null)
                 {
-                    ThreatInTheory.Add(temp.personalCoord);
-                    if (!temp.Empty && temp.piece.playerIndex != playerIndex)
+                    ThreatInTheory.Add(temp.UniqueID);
+                    if (!temp.IsEmpty && temp.piece.CanBeDestroyedBy(this))
                     {
-                        ThreatWithPieces.Add(temp.personalCoord);
+                        ThreatWithPieces.Add(temp.UniqueID);
                     }
                 }
                 temp = check.neighbors[coord.y];
                 if (temp != null)
                 {
-                    ThreatInTheory.Add(temp.personalCoord);
-                    if (!temp.Empty && temp.piece.playerIndex != playerIndex)
+                    ThreatInTheory.Add(temp.UniqueID);
+                    if (!temp.IsEmpty && temp.piece.CanBeDestroyedBy(this))
                     {
-                        ThreatWithPieces.Add(temp.personalCoord);
+                        ThreatWithPieces.Add(temp.UniqueID);
                     }
                 }
             }
@@ -151,7 +153,7 @@ public abstract class PieceAdanced : Piece
     public void ShieldGuard(Piece piece)
     {
         square.piece = null;
-        piece.MoveTo(square.personalCoord, false);
+        piece.MoveTo(square.UniqueID, false);
 
         OnCaptured();
     }
@@ -180,13 +182,13 @@ public abstract class PieceAdanced : Piece
 
     public virtual void BerserkDisplay()
     {
-        List<Vector2Int> threat = GetThreatLocations(true);
+        List<int> threat = GetThreatLocations(true);
         if (threat.Count > 0)
         {
             berserking = true;
             Select();
             RemoveHighlight();
-            GameManager.instance.boardLogic.HighlightSquares(threat, false);
+            GameManager.instance.boardLogic.SquaresWithIndicators(threat, false);
             highlightLocations.Clear();
             highlightLocations.AddRange(threat);
 
@@ -221,7 +223,7 @@ public abstract class PieceAdanced : Piece
 
     public void BerserkTargetSelected()
     {
-        if (GetThreatLocations(true).Contains(InputManager.lastGridPoint))
+        if (GetThreatLocations(true).Contains(InputManager.lastSquareTouched))
         {
             //remove actions
             GameNoticationCenter.instance.ClickedPiece.Remove(BerserkTargetSelected);
@@ -237,7 +239,7 @@ public abstract class PieceAdanced : Piece
                 berserking = false;
             }
 
-            CaptureEnemyPiece(GameManager.instance.boardLogic.map.SquareAt(InputManager.lastGridPoint).piece, InputManager.lastGridPoint);
+            CaptureEnemyPiece(GameManager.instance.boardLogic.map.SquareAt(InputManager.lastSquareTouched).piece, InputManager.lastSquareTouched);
             GameManager.instance.stuffTakingFocus.Remove(this);
 
             if (!berserking)

@@ -21,6 +21,6 @@ public class GameLog : MonoBehaviour
 
     public static void AddText(string newText)
     {
-        instance.text.text += newText;
+        instance.text.text += newText + "\n";
     }
 }

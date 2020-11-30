@@ -5,23 +5,27 @@ using UnityEngine;
 public class Queen_Knighted : Queen
 {
 
-
+    List<int> specialMovements = new List<int>();
     protected override void CalculateMoveLocations()
     {
         base.CalculateMoveLocations();
 
         if (!specialMovementUsed)
         {
-            MoveAlongL();
+            specialMovements.Clear();
+            MoveAlongL( specialMovements );
         }
     }
 
-    public override void MoveTo(Vector2Int space , bool voluntary = true)
+    public override void MoveTo(int square_id , bool voluntary = true)
     {
-        if (voluntary && (space.x != square.personalCoord.x && space.y != square.personalCoord.y))
+        if (voluntary && !specialMovementUsed && specialMovements.Contains(square_id))
+        {
             specialMovementUsed = true;
+            specialMovements.Clear();
+        }
 
-        base.MoveTo(space, voluntary);
+        base.MoveTo(square_id, voluntary);
     }
 }
 

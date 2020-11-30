@@ -37,7 +37,7 @@ public class ArmyListGoBetween {
 
         if (modelHashes.Length <= 0)
         {
-            Debug.Log(displayname + " list empty");
+            Debug.Log(displayname + " armyList empty");
         }
         var list = PieceList.allPieces.FindAll((obj) => obj.factionType == factionType);
         foreach (string hash in modelHashes)
@@ -46,7 +46,7 @@ public class ArmyListGoBetween {
             if (info == null)
                 Debug.Log("Failed to load: " + hash);
             returnValue.pieces.Add(info);
-            //returnValue.pieces.Add( list.Find((obj) => obj.hashID == hash) );
+            //returnValue.pieces.Add( armyList.Find((obj) => obj.hashID == hash) );
         }
         return returnValue;
     }

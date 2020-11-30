@@ -43,7 +43,7 @@ public class DeploySelectDisplay : MonoBehaviour
 
     public void ButtonPressed(int pieceIndex)
     {
-        DeploymentRunner.instance.nextIndex = pieceIndex;
+        DeploymentRunner.instance.PieceSelected(pieceIndex);
         dialog.SetActive(false);
     }
 }

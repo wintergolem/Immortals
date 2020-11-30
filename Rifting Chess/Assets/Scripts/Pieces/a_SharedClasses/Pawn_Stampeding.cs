@@ -4,12 +4,14 @@ using UnityEngine;
 
 public class Pawn_Stampeding : Pawn
 {
-    bool moveAbilityReseted = false;
+    int numberOfTimesAbilityUsed = 0;
+    int numberOfTimesCanUseAblity = 2;
+    int square_idOfSpecialMove;
 
     protected override void CalculateMoveLocations()
     {
         base.CalculateMoveLocations();
-        if (specialMovementUsed)
+        if (numberOfTimesAbilityUsed < numberOfTimesCanUseAblity)
         {
             Square forwardNeighor = square.neighbors[ForwardDirection > 0 ? 0 : 4];
             if (forwardNeighor != null)
@@ -17,26 +19,19 @@ public class Pawn_Stampeding : Pawn
                 Square forwarder = forwardNeighor.neighbors[ForwardDirection > 0 ? 0 : 4];
                 if (forwarder != null && forwarder.piece == null)
                 {
-                    moveLocations.Add(forwarder.personalCoord);
+                    moveLocations.Add(forwarder.UniqueID);
+                    square_idOfSpecialMove = forwarder.UniqueID;
                 }
             }
         }
     }
 
-    public override void MoveTo(Vector2Int space, bool voluntary = true)
+    public override void MoveTo(int square_id, bool voluntary = true)
     {
-        if (Mathf.Abs(space.y - square.personalCoord.y) == 2)
+        if (square_id == square_idOfSpecialMove)
         {
-            if (!specialMovementUsed)
-            {
-                specialMovementUsed = true;
-            }
-            else if ( !moveAbilityReseted )
-            {
-                moveAbilityReseted = true;
-                specialMovementUsed = false;
-            }
+            numberOfTimesAbilityUsed++;
         }
-        base.MoveTo(space, voluntary);
+        base.MoveTo(square_id, voluntary);
     }
 }
